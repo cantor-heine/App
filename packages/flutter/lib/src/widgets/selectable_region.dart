@@ -357,6 +357,10 @@ class SelectableRegionState extends State<SelectableRegion> with TextSelectionDe
   /// {@macro flutter.rendering.RenderEditable.lastSecondaryTapDownPosition}
   Offset? lastSecondaryTapDownPosition;
 
+  /// Whether the Shift key was pressed when the most recent [PointerDownEvent]
+  /// was tracked by the [BaseTapAndDragGestureRecognizer].
+  bool _isShiftPressed = false;
+
   /// The [SelectionOverlay] that is currently visible on the screen.
   ///
   /// Can be null if there is no visible [SelectionOverlay].
@@ -514,6 +518,8 @@ class SelectableRegionState extends State<SelectableRegion> with TextSelectionDe
           () => TapAndPanGestureRecognizer(debugOwner:this, supportedDevices: <PointerDeviceKind>{ PointerDeviceKind.mouse }),
           (TapAndPanGestureRecognizer instance) {
         instance
+          ..onTapTrackStart = onTapTrackStart
+          ..onTapTrackReset = onTapTrackReset
           ..onTapDown = _startNewMouseSelectionGesture
           ..onTapUp = _handleMouseTapUp
           ..onDragStart = _handleMouseDragStart
@@ -523,6 +529,16 @@ class SelectableRegionState extends State<SelectableRegion> with TextSelectionDe
           ..dragStartBehavior = DragStartBehavior.down;
       },
     );
+  }
+
+  void onTapTrackStart() {
+    _isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed
+        .intersection(<LogicalKeyboardKey>{LogicalKeyboardKey.shiftLeft, LogicalKeyboardKey.shiftRight})
+        .isNotEmpty;
+  }
+
+  void onTapTrackReset() {
+    _isShiftPressed = false;
   }
 
   void _initTouchGestureRecognizer() {
@@ -551,6 +567,15 @@ class SelectableRegionState extends State<SelectableRegion> with TextSelectionDe
           case TargetPlatform.macOS:
           case TargetPlatform.linux:
           case TargetPlatform.windows:
+            // It is impossible to extend the selection when the shift key is
+            // pressed and the start of the selection has not been initialized.
+            // In this case we fallback on collapsing the selection to first
+            // initialize the selection.
+            final bool isShiftPressedValid = _isShiftPressed && _selectionDelegate.value.startSelectionPoint != null;
+            if (isShiftPressedValid) {
+              _selectEndTo(offset: details.globalPosition);
+              return;
+            }
             _collapseSelectionAt(offset: details.globalPosition);
         }
       case 2:
