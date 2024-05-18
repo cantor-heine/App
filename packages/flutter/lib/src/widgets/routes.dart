@@ -1736,10 +1736,11 @@ abstract class ModalRoute<T> extends TransitionRoute<T> with LocalHistoryRoute<T
   }
 
   @override
-  void onPopInvoked(bool didPop, T? result) {
+  void onPopInvokedWithResult(bool didPop, T? result) {
     for (final PopEntry<Object?> popEntry in _popEntries) {
-      popEntry.onPopInvoked(didPop, result);
+      popEntry.onPopInvokedWithResult(didPop, result);
     }
+    super.onPopInvokedWithResult(didPop, result);
   }
 
   /// Enables this route to veto attempts by the user to dismiss it.
@@ -1788,7 +1789,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T> with LocalHistoryRoute<T
   /// Registers the existence of a [PopEntry] in the route.
   ///
   /// [PopEntry] instances registered in this way will have their
-  /// [PopEntry.onPopInvoked] callbacks called when a route is popped or a pop
+  /// [PopEntry.onPopInvokedWithResult] callbacks called when a route is popped or a pop
   /// is attempted. They will also be able to block pop operations with
   /// [PopEntry.canPopNotifier] through this route's [popDisposition] method.
   ///
@@ -1797,8 +1798,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T> with LocalHistoryRoute<T
   ///  * [unregisterPopEntry], which performs the opposite operation.
   void registerPopEntry(PopEntry<Object?> popEntry) {
     _popEntries.add(popEntry);
-    popEntry.canPopNotifier.addListener(_handlePopEntryChange);
-    _handlePopEntryChange();
+    popEntry.canPopNotifier.addListener(_maybeDispatchNavigationNotification);
+    _maybeDispatchNavigationNotification();
   }
 
   /// Unregisters a [PopEntry] in the route's widget subtree.
@@ -1808,11 +1809,11 @@ abstract class ModalRoute<T> extends TransitionRoute<T> with LocalHistoryRoute<T
   ///  * [registerPopEntry], which performs the opposite operation.
   void unregisterPopEntry(PopEntry<Object?> popEntry) {
     _popEntries.remove(popEntry);
-    popEntry.canPopNotifier.removeListener(_handlePopEntryChange);
-    _handlePopEntryChange();
+    popEntry.canPopNotifier.removeListener(_maybeDispatchNavigationNotification);
+    _maybeDispatchNavigationNotification();
   }
 
-  void _handlePopEntryChange() {
+  void _maybeDispatchNavigationNotification() {
     if (!isCurrent) {
       return;
     }
@@ -1881,6 +1882,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T> with LocalHistoryRoute<T
   void didPopNext(Route<dynamic> nextRoute) {
     super.didPopNext(nextRoute);
     changedInternalState();
+    _maybeDispatchNavigationNotification();
   }
 
   @override
@@ -2286,10 +2288,7 @@ class RawDialogRoute<T> extends PopupRoute<T> {
     if (_transitionBuilder == null) {
       // Some default transition.
       return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: Curves.linear,
-        ),
+        opacity: animation,
         child: child,
       );
     }
@@ -2421,7 +2420,7 @@ typedef PopInvokedWithResultCallback<T> = void Function(bool didPop, T? result);
 
 /// Allows listening to and preventing pops.
 ///
-/// Can be registered in [ModalRoute] to listen to pops with [onPopInvoked] or
+/// Can be registered in [ModalRoute] to listen to pops with [onPopInvokedWithResult] or
 /// to enable/disable them with [canPopNotifier].
 ///
 /// See also:
@@ -2430,14 +2429,22 @@ typedef PopInvokedWithResultCallback<T> = void Function(bool didPop, T? result);
 ///  * [ModalRoute.registerPopEntry], which unregisters instances of this.
 ///  * [ModalRoute.unregisterPopEntry], which unregisters instances of this.
 abstract class PopEntry<T> {
+
   /// {@macro flutter.widgets.PopScope.onPopInvokedWithResult}
-  void onPopInvoked(bool didPop, T? result);
+  @Deprecated(
+    'Use onPopInvokedWithResult instead. '
+    'This feature was deprecated after v3.22.0-12.0.pre.',
+  )
+  void onPopInvoked(bool didPop) { }
+
+  /// {@macro flutter.widgets.PopScope.onPopInvokedWithResult}
+  void onPopInvokedWithResult(bool didPop, T? result) => onPopInvoked(didPop);
 
   /// {@macro flutter.widgets.PopScope.canPop}
   ValueListenable<bool> get canPopNotifier;
 
   @override
   String toString() {
-    return 'PopEntry canPop: ${canPopNotifier.value}, onPopInvoked: $onPopInvoked';
+    return 'PopEntry canPop: ${canPopNotifier.value}, onPopInvoked: $onPopInvokedWithResult';
   }
 }
