@@ -22,6 +22,7 @@ import 'package:flutter_tools/src/project.dart';
 import 'package:flutter_tools/src/reporting/reporting.dart';
 import 'package:unified_analytics/unified_analytics.dart';
 
+import '../../integration.shard/test_utils.dart';
 import '../../src/common.dart';
 import '../../src/context.dart';
 import '../../src/fake_process_manager.dart';
@@ -112,7 +113,7 @@ void main() {
   FakeCommand setUpFakeXcodeBuildHandler(String configuration, { bool verbose = false, void Function(List<String> command)? onRun }) {
     final FlutterProject flutterProject = FlutterProject.fromDirectory(fileSystem.currentDirectory);
     final Directory flutterBuildDir = fileSystem.directory(getMacOSBuildDirectory());
-    final String arch = 'x86_64';
+    final String arch = platform.version.contains('arm64') ? 'arm64' : 'x86_64';
     return FakeCommand(
       command: <String>[
         '/usr/bin/env',
@@ -499,6 +500,7 @@ STDERR STUFF
     final Directory flutterBuildDir = fileSystem.directory(getMacOSBuildDirectory());
     createMinimalMockProjectFiles();
 
+    final String arch = platform.version.contains('arm64') ? 'arm64' : 'x86_64';
     fakeProcessManager.addCommands(<FakeCommand>[
       FakeCommand(
         command: <String>[
@@ -509,7 +511,7 @@ STDERR STUFF
           '-configuration', 'Debug',
           '-scheme', 'Runner',
           '-derivedDataPath', flutterBuildDir.absolute.path,
-          '-destination', 'platform=macOS',
+          '-destination', 'platform=macOS,arch=$arch',
           'OBJROOT=${fileSystem.path.join(flutterBuildDir.absolute.path, 'Build', 'Intermediates.noindex')}',
           'SYMROOT=${fileSystem.path.join(flutterBuildDir.absolute.path, 'Build', 'Products')}',
           '-quiet',
