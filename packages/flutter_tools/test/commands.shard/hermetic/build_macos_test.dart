@@ -112,7 +112,7 @@ void main() {
   FakeCommand setUpFakeXcodeBuildHandler(String configuration, { bool verbose = false, void Function(List<String> command)? onRun }) {
     final FlutterProject flutterProject = FlutterProject.fromDirectory(fileSystem.currentDirectory);
     final Directory flutterBuildDir = fileSystem.directory(getMacOSBuildDirectory());
-    final String arch = 'x86_64'
+    final String arch = 'x86_64';
     return FakeCommand(
       command: <String>[
         '/usr/bin/env',
