@@ -1,0 +1,26 @@
+# Copyright 2014 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#about-yaml-syntax-for-workflows
+
+name: trigger-luci-presubmits
+run-name: test run-name
+on: [pull_request]
+
+permissions: read-all
+
+jobs:
+  foo:
+    name: foo-job
+    if: ${{ github.repository == 'flutter/flutter' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Flutter Repo
+        # TODO does this need to be pinned?
+        uses: actions/checkout@v4
+      - name: Schedule Presubmits
+        run: |
+          cd dev/bots
+          ../../bin/dart pub get
+          ../../bin/dart schedule_presubmits.dart
