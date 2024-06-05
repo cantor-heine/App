@@ -4,8 +4,7 @@
 
 import 'dart:ui';
 
-import 'package:flutter/material.dart' show IconButton, Icons,
-  MaterialLocalizations, Tooltip;
+import 'package:flutter/material.dart' show Tooltip;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -371,7 +370,7 @@ class CommonFinders {
   ///
   /// If the `skipOffstage` argument is true (the default), then this skips
   /// nodes that are [Offstage] or that are from inactive [Route]s.
-  Finder byTooltip(Pattern message, { bool skipOffstage = true }) {
+  Finder byTooltip(Pattern message, {bool skipOffstage = true}) {
     return byWidgetPredicate(
       (Widget widget) {
         return widget is Tooltip &&
@@ -464,69 +463,70 @@ class CommonFinders {
     return _AncestorWidgetFinder(of, matching, matchLeaves: matchRoot);
   }
 
-  /// Finds standard Material Design buttons.
+  /// Finds a standard "back" button.
   ///
-  /// Material Design uses a set of standard icons and buttons for particular
-  /// purposes, such as back, close, more, or menu buttons.
+  /// A common element on many user interfaces is the "back" button. This is the
+  /// button which takes the user back to the previous page/screen/state.
   ///
   /// It is useful in tests to be able to find these buttons, both for tapping
-  /// them or verifying their existence, but not desirable to hard code the
-  /// icons and button types, so using this finder will allow finding of the
-  /// buttons without needing to know the exact icon, etc. used for them.
+  /// them or verifying their existence, but because different platforms and
+  /// locales have different icons representing them with different labels and
+  /// tooltips, it's not desirable to have to look them up by these attributes.
+  ///
+  /// This finder uses the [StandardComponentType] enum to look for buttons that
+  /// have the key associated with [StandardComponentType.backButton]. If
+  /// another widget is assigned that key, then it too will be considered an
+  /// "official" back button in the widget tree, allowing this matcher to still
+  /// find it even though it might use a different icon or tooltip.
   ///
   /// ## Sample code
   ///
   /// ```dart
-  /// expect(find.materialButton(MaterialButtonType.backButton), findsOneWidget);
+  /// expect(find.backButton(), findsOneWidget);
   /// ```
-  Finder materialButton(MaterialButtonType type) {
-    // Finds an IconButton with the right icon and tooltip.
-    return switch (type) {
-      MaterialButtonType.backButton => ancestor(
-          of: byElementPredicate(
-            (Element element) =>
-                element.widget is Tooltip &&
-                (element.widget as Tooltip).message == MaterialLocalizations.of(element).backButtonTooltip,
-          ),
-          matching: ancestor(
-            of: byWidgetPredicate((Widget widget) => widget is Icon &&
-              (widget.icon == Icons.adaptive.arrow_back || widget.icon == Icons.arrow_back_ios_new_rounded)),
-            matching: byType(IconButton),
-          ),
-        ),
-      MaterialButtonType.menuButton => ancestor(
-          of: byElementPredicate(
-            (Element element) =>
-                element.widget is Tooltip &&
-                (element.widget as Tooltip).message == MaterialLocalizations.of(element).showMenuTooltip,
-          ),
-          matching: ancestor(
-            of: byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == Icons.menu),
-            matching: byType(IconButton),
-          ),
-        ),
-      MaterialButtonType.moreButton => ancestor(
-          of: byElementPredicate(
-            (Element element) =>
-                element.widget is Tooltip &&(element.widget as Tooltip).message == MaterialLocalizations.of(element).moreButtonTooltip,
-          ),
-          matching: ancestor(
-            of: byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == Icons.adaptive.more),
-            matching: byType(IconButton),
-          ),
-        ),
-      MaterialButtonType.closeButton => ancestor(
-          of: byElementPredicate(
-            (Element element) =>
-                element.widget is Tooltip &&
-                (element.widget as Tooltip).message == MaterialLocalizations.of(element).closeButtonTooltip,
-          ),
-          matching: ancestor(
-            of: byWidgetPredicate((Widget widget) => widget is Icon && widget.icon == Icons.close),
-            matching: byType(IconButton),
-          ),
-        ),
-    };
+  ///
+  /// See also:
+  ///
+  /// * [StandardComponentType], the enum that enumerates components that are
+  ///   both common in user interfaces, but which also can vary slightly in
+  ///   presentation across different platforms, locales, and devices.
+  /// * [BackButton], the Flutter Material widget that represents the back
+  ///   button.
+  Finder backButton() {
+    return byKey(StandardComponentType.backButton.key);
+  }
+
+  /// Finds a standard "close" button.
+  ///
+  /// A common element on many user interfaces is the "close" button. This is
+  /// the button which closes or cancels whatever it is attached to.
+  ///
+  /// It is useful in tests to be able to find these buttons, both for tapping
+  /// them or verifying their existence, but because different platforms and
+  /// locales have different icons representing them with different labels and
+  /// tooltips, it's not desirable to have to look them up by these attributes.
+  ///
+  /// This finder uses the [StandardComponentType] enum to look for buttons that
+  /// have the key associated with [StandardComponentType.closeButton]. If
+  /// another widget is assigned that key, then it too will be considered an
+  /// "official" back button in the widget tree, allowing this matcher to still
+  /// find it even though it might use a different icon or tooltip.
+  ///
+  /// ## Sample code
+  ///
+  /// ```dart
+  /// expect(find.backButton(), findsOneWidget);
+  /// ```
+  ///
+  /// See also:
+  ///
+  /// * [StandardComponentType], the enum that enumerates components that are
+  ///   both common in user interfaces, but which also can vary slightly in
+  ///   presentation across different platforms, locales, and devices.
+  /// * [CloseButton], the Flutter Material widget that represents a close
+  ///   button.
+  Finder closeButton() {
+    return byKey(StandardComponentType.closeButton.key);
   }
 
   /// Finds [Semantics] widgets matching the given `label`, either by
@@ -575,31 +575,6 @@ class CommonFinders {
     );
   }
 }
-
-/// An enum used by `find.materialButton` to describe the type of material
-/// button to find.
-///
-/// Standard buttons are buttons provided by the framework for Material or
-/// Cupertino widgets. The finder may also find custom buttons which are
-/// configured similarly to the standard buttons (have the same icon and
-/// tooltip).
-enum MaterialButtonType {
-  /// Finds the "back" button, if any. A back button typically has some kind
-  /// of backward pointing icon, and appropriate tooltip.
-  backButton,
-  /// Finds the "menu" button, if any. A menu button typically has some kind
-  /// of menu icon ("hamburger", "bars", or three dots), and an appropriate
-  /// tooltip.
-  menuButton,
-  /// Finds the "menu" button, if any. A menu button typically has some kind
-  /// of menu icon ("hamburger", "bars", or three dots), and an appropriate
-  /// tooltip.
-  moreButton,
-  /// Finds the "close" button, if any. A close button typically has some kind
-  /// of close icon (an "X", typically), and an appropriate tooltip.
-  closeButton,
-}
-
 
 /// Provides lightweight syntax for getting frequently used semantics finders.
 ///
