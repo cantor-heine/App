@@ -240,6 +240,7 @@ class _CupertinoButtonState extends State<CupertinoButton> with SingleTickerProv
         : CupertinoDynamicColor.resolve(CupertinoColors.placeholderText, context);
 
     final TextStyle textStyle = themeData.textTheme.textStyle.copyWith(color: foregroundColor);
+    final IconThemeData iconTheme = IconTheme.of(context).copyWith(color: foregroundColor);
 
     return MouseRegion(
       cursor: enabled && kIsWeb ? SystemMouseCursors.click : MouseCursor.defer,
@@ -278,7 +279,7 @@ class _CupertinoButtonState extends State<CupertinoButton> with SingleTickerProv
                     child: DefaultTextStyle(
                       style: textStyle,
                       child: IconTheme(
-                        data: IconThemeData(color: foregroundColor),
+                        data: iconTheme,
                         child: widget.child,
                       ),
                     ),
