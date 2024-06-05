@@ -19,14 +19,12 @@ const TextStyle testStyle = TextStyle(
 void main() {
   testWidgets('Default layout minimum size', (WidgetTester tester) async {
     await tester.pumpWidget(
-      boilerplate(
-          child: const CupertinoButton(
+      boilerplate(child: const CupertinoButton(
         onPressed: null,
         child: Text('X', style: testStyle),
       )),
     );
-    final RenderBox buttonBox =
-        tester.renderObject(find.byType(CupertinoButton));
+    final RenderBox buttonBox = tester.renderObject(find.byType(CupertinoButton));
     expect(
       buttonBox.size,
       // 1 10px character + 16px * 2 is smaller than the default 44px minimum.
@@ -37,15 +35,13 @@ void main() {
   testWidgets('Minimum size parameter', (WidgetTester tester) async {
     const double minSize = 60.0;
     await tester.pumpWidget(
-      boilerplate(
-          child: const CupertinoButton(
+      boilerplate(child: const CupertinoButton(
         onPressed: null,
         minSize: minSize,
         child: Text('X', style: testStyle),
       )),
     );
-    final RenderBox buttonBox =
-        tester.renderObject(find.byType(CupertinoButton));
+    final RenderBox buttonBox = tester.renderObject(find.byType(CupertinoButton));
     expect(
       buttonBox.size,
       // 1 10px character + 16px * 2 is smaller than defined 60.0px minimum
@@ -55,14 +51,12 @@ void main() {
 
   testWidgets('Size grows with text', (WidgetTester tester) async {
     await tester.pumpWidget(
-      boilerplate(
-          child: const CupertinoButton(
+      boilerplate(child: const CupertinoButton(
         onPressed: null,
         child: Text('XXXX', style: testStyle),
       )),
     );
-    final RenderBox buttonBox =
-        tester.renderObject(find.byType(CupertinoButton));
+    final RenderBox buttonBox = tester.renderObject(find.byType(CupertinoButton));
     expect(
       buttonBox.size.width,
       // 4 10px character + 16px * 2 = 72.
@@ -112,40 +106,36 @@ void main() {
     await tester.pumpWidget(
       CupertinoApp(
         home: CupertinoButton(
-          onPressed: () {},
+          onPressed: () { },
           child: const Text('button'),
         ),
       ),
     );
 
-    Align align = tester.firstWidget<Align>(
-        find.ancestor(of: find.text('button'), matching: find.byType(Align)));
+    Align align = tester.firstWidget<Align>(find.ancestor(of: find.text('button'), matching: find.byType(Align)));
     expect(align.alignment, Alignment.center); // default
 
     await tester.pumpWidget(
       CupertinoApp(
         home: CupertinoButton(
           alignment: Alignment.centerLeft,
-          onPressed: () {},
+          onPressed: () { },
           child: const Text('button'),
         ),
       ),
     );
 
-    align = tester.firstWidget<Align>(
-        find.ancestor(of: find.text('button'), matching: find.byType(Align)));
+    align = tester.firstWidget<Align>(find.ancestor(of: find.text('button'), matching: find.byType(Align)));
     expect(align.alignment, Alignment.centerLeft);
   });
 
   testWidgets('Button with background is wider', (WidgetTester tester) async {
-    await tester.pumpWidget(boilerplate(
-        child: const CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: const CupertinoButton(
       onPressed: null,
       color: Color(0xFFFFFFFF),
       child: Text('X', style: testStyle),
     )));
-    final RenderBox buttonBox =
-        tester.renderObject(find.byType(CupertinoButton));
+    final RenderBox buttonBox = tester.renderObject(find.byType(CupertinoButton));
     expect(
       buttonBox.size.width,
       // 1 10px character + 64 * 2 = 138 for buttons with background.
@@ -154,14 +144,12 @@ void main() {
   });
 
   testWidgets('Custom padding', (WidgetTester tester) async {
-    await tester.pumpWidget(boilerplate(
-        child: const CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: const CupertinoButton(
       onPressed: null,
       padding: EdgeInsets.all(100.0),
       child: Text('X', style: testStyle),
     )));
-    final RenderBox buttonBox =
-        tester.renderObject(find.byType(CupertinoButton));
+    final RenderBox buttonBox = tester.renderObject(find.byType(CupertinoButton));
     expect(
       buttonBox.size,
       const Size.square(210.0),
@@ -197,8 +185,7 @@ void main() {
   });
 
   testWidgets("Disabled button doesn't animate", (WidgetTester tester) async {
-    await tester.pumpWidget(boilerplate(
-        child: const CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: const CupertinoButton(
       onPressed: null,
       child: Text('Tap me'),
     )));
@@ -209,10 +196,9 @@ void main() {
   });
 
   testWidgets('Enabled button animates', (WidgetTester tester) async {
-    await tester.pumpWidget(boilerplate(
-        child: CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: CupertinoButton(
       child: const Text('Tap me'),
-      onPressed: () {},
+      onPressed: () { },
     )));
 
     await tester.tap(find.byType(CupertinoButton));
@@ -246,10 +232,9 @@ void main() {
   });
 
   testWidgets('pressedOpacity defaults to 0.1', (WidgetTester tester) async {
-    await tester.pumpWidget(boilerplate(
-        child: CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: CupertinoButton(
       child: const Text('Tap me'),
-      onPressed: () {},
+      onPressed: () { },
     )));
 
     // Keep a "down" gesture on the button
@@ -271,11 +256,10 @@ void main() {
 
   testWidgets('pressedOpacity parameter', (WidgetTester tester) async {
     const double pressedOpacity = 0.5;
-    await tester.pumpWidget(boilerplate(
-        child: CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: CupertinoButton(
       pressedOpacity: pressedOpacity,
       child: const Text('Tap me'),
-      onPressed: () {},
+      onPressed: () { },
     )));
 
     // Keep a "down" gesture on the button
@@ -295,70 +279,61 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Cupertino button is semantically a button',
-      (WidgetTester tester) async {
+  testWidgets('Cupertino button is semantically a button', (WidgetTester tester) async {
     final SemanticsTester semantics = SemanticsTester(tester);
     await tester.pumpWidget(
       boilerplate(
-        child: Center(
-          child: CupertinoButton(
-            onPressed: () {},
-            child: const Text('ABC'),
+          child: Center(
+            child: CupertinoButton(
+              onPressed: () { },
+              child: const Text('ABC'),
+            ),
           ),
-        ),
       ),
     );
 
-    expect(
-        semantics,
-        hasSemantics(
-          TestSemantics.root(
-            children: <TestSemantics>[
-              TestSemantics.rootChild(
-                actions: SemanticsAction.tap.index,
-                label: 'ABC',
-                flags: SemanticsFlag.isButton.index,
-              ),
-            ],
+    expect(semantics, hasSemantics(
+      TestSemantics.root(
+        children: <TestSemantics>[
+          TestSemantics.rootChild(
+            actions: SemanticsAction.tap.index,
+            label: 'ABC',
+            flags: SemanticsFlag.isButton.index,
           ),
-          ignoreId: true,
-          ignoreRect: true,
-          ignoreTransform: true,
-        ));
+        ],
+      ),
+      ignoreId: true,
+      ignoreRect: true,
+      ignoreTransform: true,
+    ));
 
     semantics.dispose();
   });
 
   testWidgets('Can specify colors', (WidgetTester tester) async {
-    await tester.pumpWidget(boilerplate(
-        child: CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: CupertinoButton(
       color: const Color(0x000000FF),
       disabledColor: const Color(0x0000FF00),
-      onPressed: () {},
+      onPressed: () { },
       child: const Text('Skeuomorph me'),
     )));
 
-    BoxDecoration boxDecoration = tester
-        .widget<DecoratedBox>(
-          find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
-        )
-        .decoration as BoxDecoration;
+    BoxDecoration boxDecoration = tester.widget<DecoratedBox>(
+      find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
+    ).decoration as BoxDecoration;
 
     expect(boxDecoration.color, const Color(0x000000FF));
 
-    await tester.pumpWidget(boilerplate(
-        child: const CupertinoButton(
+    await tester.pumpWidget(boilerplate(child: const CupertinoButton(
       color: Color(0x000000FF),
       disabledColor: Color(0x0000FF00),
       onPressed: null,
       child: Text('Skeuomorph me'),
     )));
 
-    boxDecoration = tester
-        .widget<DecoratedBox>(
-          find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
-        )
-        .decoration as BoxDecoration;
+    boxDecoration = tester.widget<DecoratedBox>(
+      find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
+    ).decoration as BoxDecoration;
 
     expect(boxDecoration.color, const Color(0x0000FF00));
   });
@@ -377,29 +352,25 @@ void main() {
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(platformBrightness: Brightness.dark),
-        child: boilerplate(
-            child: CupertinoButton(
+        child: boilerplate(child: CupertinoButton(
           color: bgColor,
           disabledColor: inactive,
-          onPressed: () {},
+          onPressed: () { },
           child: const Text('Skeuomorph me'),
         )),
       ),
     );
 
-    BoxDecoration boxDecoration = tester
-        .widget<DecoratedBox>(
-          find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
-        )
-        .decoration as BoxDecoration;
+    BoxDecoration boxDecoration = tester.widget<DecoratedBox>(
+      find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
+    ).decoration as BoxDecoration;
 
     expect(boxDecoration.color!.value, 0xFF654321);
 
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(),
-        child: boilerplate(
-            child: const CupertinoButton(
+        child: boilerplate(child: const CupertinoButton(
           color: bgColor,
           disabledColor: inactive,
           onPressed: null,
@@ -408,11 +379,9 @@ void main() {
       ),
     );
 
-    boxDecoration = tester
-        .widget<DecoratedBox>(
-          find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
-        )
-        .decoration as BoxDecoration;
+    boxDecoration = tester.widget<DecoratedBox>(
+      find.widgetWithText(DecoratedBox, 'Skeuomorph me'),
+    ).decoration as BoxDecoration;
 
     // Disabled color.
     expect(boxDecoration.color!.value, 0xFF111111);
@@ -424,7 +393,7 @@ void main() {
     await tester.pumpWidget(
       CupertinoApp(
         home: CupertinoButton(
-          onPressed: () {},
+          onPressed: () { },
           child: Builder(builder: (BuildContext context) {
             textStyle = DefaultTextStyle.of(context).style;
             return const Placeholder();
@@ -438,7 +407,7 @@ void main() {
     await tester.pumpWidget(
       CupertinoApp(
         home: CupertinoButton.filled(
-          onPressed: () {},
+          onPressed: () { },
           child: Builder(builder: (BuildContext context) {
             textStyle = DefaultTextStyle.of(context).style;
             return const Placeholder();
@@ -448,21 +417,19 @@ void main() {
     );
 
     expect(textStyle.color, isSameColorAs(CupertinoColors.white));
-    BoxDecoration decoration = tester
-        .widget<DecoratedBox>(
-          find.descendant(
-            of: find.byType(CupertinoButton),
-            matching: find.byType(DecoratedBox),
-          ),
-        )
-        .decoration as BoxDecoration;
+    BoxDecoration decoration = tester.widget<DecoratedBox>(
+      find.descendant(
+        of: find.byType(CupertinoButton),
+        matching: find.byType(DecoratedBox),
+      ),
+    ).decoration as BoxDecoration;
     expect(decoration.color, CupertinoColors.activeBlue);
 
     await tester.pumpWidget(
       CupertinoApp(
         theme: const CupertinoThemeData(brightness: Brightness.dark),
         home: CupertinoButton(
-          onPressed: () {},
+          onPressed: () { },
           child: Builder(builder: (BuildContext context) {
             textStyle = DefaultTextStyle.of(context).style;
             return const Placeholder();
@@ -470,14 +437,13 @@ void main() {
         ),
       ),
     );
-    expect(
-        textStyle.color, isSameColorAs(CupertinoColors.systemBlue.darkColor));
+    expect(textStyle.color, isSameColorAs(CupertinoColors.systemBlue.darkColor));
 
     await tester.pumpWidget(
       CupertinoApp(
         theme: const CupertinoThemeData(brightness: Brightness.dark),
         home: CupertinoButton.filled(
-          onPressed: () {},
+          onPressed: () { },
           child: Builder(builder: (BuildContext context) {
             textStyle = DefaultTextStyle.of(context).style;
             return const Placeholder();
@@ -486,38 +452,31 @@ void main() {
       ),
     );
     expect(textStyle.color, isSameColorAs(CupertinoColors.black));
-    decoration = tester
-        .widget<DecoratedBox>(
-          find.descendant(
-            of: find.byType(CupertinoButton),
-            matching: find.byType(DecoratedBox),
-          ),
-        )
-        .decoration as BoxDecoration;
-    expect(
-        decoration.color, isSameColorAs(CupertinoColors.systemBlue.darkColor));
+    decoration = tester.widget<DecoratedBox>(
+      find.descendant(
+        of: find.byType(CupertinoButton),
+        matching: find.byType(DecoratedBox),
+      ),
+    ).decoration as BoxDecoration;
+    expect(decoration.color, isSameColorAs(CupertinoColors.systemBlue.darkColor));
   });
 
-  testWidgets(
-      'Hovering over Cupertino button updates cursor to clickable on Web',
-      (WidgetTester tester) async {
+  testWidgets('Hovering over Cupertino button updates cursor to clickable on Web', (WidgetTester tester) async {
     await tester.pumpWidget(
       CupertinoApp(
         home: Center(
           child: CupertinoButton.filled(
-            onPressed: () {},
+            onPressed: () { },
             child: const Text('Tap me'),
           ),
         ),
       ),
     );
 
-    final TestGesture gesture =
-        await tester.createGesture(kind: PointerDeviceKind.mouse, pointer: 1);
+    final TestGesture gesture = await tester.createGesture(kind: PointerDeviceKind.mouse, pointer: 1);
     await gesture.addPointer(location: const Offset(10, 10));
     await tester.pumpAndSettle();
-    expect(RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1),
-        SystemMouseCursors.basic);
+    expect(RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1), SystemMouseCursors.basic);
 
     final Offset button = tester.getCenter(find.byType(CupertinoButton));
     await gesture.moveTo(button);
@@ -528,8 +487,7 @@ void main() {
     );
   });
 
-  testWidgets('IconThemeData is not replaced by CupertinoButton',
-      (WidgetTester tester) async {
+  testWidgets('IconThemeData is not replaced by CupertinoButton', (WidgetTester tester) async {
     const IconThemeData givenIconTheme = IconThemeData(
       size: 12.0,
     );
@@ -548,7 +506,7 @@ void main() {
                   actualIconTheme = IconTheme.of(context);
 
                   return const Placeholder();
-                }
+                },
               ),
             ),
           ),
@@ -560,7 +518,7 @@ void main() {
   });
 }
 
-Widget boilerplate({required Widget child}) {
+Widget boilerplate({ required Widget child }) {
   return Directionality(
     textDirection: TextDirection.ltr,
     child: Center(child: child),
