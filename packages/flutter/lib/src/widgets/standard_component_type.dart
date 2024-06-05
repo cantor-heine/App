@@ -49,5 +49,8 @@ enum StandardComponentType {
   /// a drawer.
   drawerButton;
 
+  /// Returns a [ValueKey] for this [StandardComponentType].
+  ///
+  /// Attach this key to a widget to indicate it is a standard UI component.
   ValueKey<StandardComponentType> get key => ValueKey<StandardComponentType>(this);
 }
