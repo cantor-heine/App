@@ -1044,7 +1044,7 @@ void main() {
     );
   });
 
-  testWidgets('SwitchListTile respects thumbIcon - M3', (WidgetTester tester) async {
+  testWidgets('SwitchListTile respects thumbIcon', (WidgetTester tester) async {
     const Icon activeIcon = Icon(Icons.check);
     const Icon inactiveIcon = Icon(Icons.close);
 
@@ -1059,7 +1059,6 @@ void main() {
 
     Widget buildSwitchListTile({required bool enabled, required bool active, Icon? activeIcon, Icon? inactiveIcon}) {
       return MaterialApp(
-        theme: ThemeData(useMaterial3: true),
         home: wrap(
           child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
@@ -1082,7 +1081,7 @@ void main() {
       Material.of(tester.element(find.byType(Switch))),
       paints
         ..rrect()..rrect()
-        ..paragraph(offset: const Offset(32.0, 12.0)),
+        ..paragraph(offset: const Offset(28.0, 12.0)),
     );
 
     // inactive icon shows when switch is off.
@@ -1095,7 +1094,7 @@ void main() {
       paints
         ..rrect()..rrect()
         ..rrect()
-        ..paragraph(offset: const Offset(12.0, 12.0)),
+        ..paragraph(offset: const Offset(8.0, 12.0)),
     );
 
     // active icon doesn't show when switch is off.
@@ -1157,10 +1156,9 @@ void main() {
     expect(tester.getSize(find.byType(Switch)), const Size(59.0, 40.0));
   });
 
-  testWidgets('Material3 - SwitchListTile respects materialTapTargetSize', (WidgetTester tester) async {
+  testWidgets('SwitchListTile respects materialTapTargetSize', (WidgetTester tester) async {
     Widget buildSwitchListTile(MaterialTapTargetSize materialTapTargetSize) {
       return MaterialApp(
-        theme: ThemeData(useMaterial3: true),
         home: Material(
           child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
@@ -1177,12 +1175,12 @@ void main() {
     await tester.pumpWidget(buildSwitchListTile(MaterialTapTargetSize.padded));
     final Switch switchWidget = tester.widget<Switch>(find.byType(Switch));
     expect(switchWidget.materialTapTargetSize, MaterialTapTargetSize.padded);
-    expect(tester.getSize(find.byType(Switch)), const Size(60.0, 48.0));
+    expect(tester.getSize(find.byType(Switch)), const Size(52.0, 48.0));
 
     await tester.pumpWidget(buildSwitchListTile(MaterialTapTargetSize.shrinkWrap));
     final Switch switchWidget1 = tester.widget<Switch>(find.byType(Switch));
     expect(switchWidget1.materialTapTargetSize, MaterialTapTargetSize.shrinkWrap);
-    expect(tester.getSize(find.byType(Switch)), const Size(60.0, 40.0));
+    expect(tester.getSize(find.byType(Switch)), const Size(52.0, 40.0));
   });
 
   testWidgets('Material2 - SwitchListTile.adaptive respects applyCupertinoTheme', (WidgetTester tester) async {
@@ -1285,10 +1283,9 @@ void main() {
     expect(tester.getSize(find.byType(Switch)), const Size(59.0, 40.0));
   });
 
-  testWidgets('Material3 - SwitchListTile respects materialTapTargetSize', (WidgetTester tester) async {
+  testWidgets('SwitchListTile respects materialTapTargetSize', (WidgetTester tester) async {
     Widget buildSwitchListTile(MaterialTapTargetSize materialTapTargetSize) {
       return MaterialApp(
-        theme: ThemeData(useMaterial3: true),
         home: Material(
           child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
@@ -1305,12 +1302,12 @@ void main() {
     await tester.pumpWidget(buildSwitchListTile(MaterialTapTargetSize.padded));
     final Switch switchWidget = tester.widget<Switch>(find.byType(Switch));
     expect(switchWidget.materialTapTargetSize, MaterialTapTargetSize.padded);
-    expect(tester.getSize(find.byType(Switch)), const Size(60.0, 48.0));
+    expect(tester.getSize(find.byType(Switch)), const Size(52.0, 48.0));
 
     await tester.pumpWidget(buildSwitchListTile(MaterialTapTargetSize.shrinkWrap));
     final Switch switchWidget1 = tester.widget<Switch>(find.byType(Switch));
     expect(switchWidget1.materialTapTargetSize, MaterialTapTargetSize.shrinkWrap);
-    expect(tester.getSize(find.byType(Switch)), const Size(60.0, 40.0));
+    expect(tester.getSize(find.byType(Switch)), const Size(52.0, 40.0));
   });
 
   testWidgets('SwitchListTile passes the value of dragStartBehavior to Switch', (WidgetTester tester) async {
