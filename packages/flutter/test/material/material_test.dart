@@ -321,6 +321,19 @@ void main() {
     expect(pressed, isTrue);
   });
 
+  testWidgets('Material.of(context) works with BlankMaterial', (WidgetTester tester) async {
+    Color? color;
+
+    await tester.pumpWidget(BlankMaterial(
+      color: Colors.cyan,
+      child: Builder(builder: (BuildContext context) {
+        color = Material.of(context).color;
+        return const SizedBox.shrink();
+      }),
+    ));
+    expect(color, Colors.cyan);
+  });
+
   group('Surface Tint Overlay', () {
     testWidgets('applyElevationOverlayColor does not effect anything with useMaterial3 set to true', (WidgetTester tester) async {
       const Color surfaceColor = Color(0xFF121212);
