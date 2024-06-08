@@ -62,7 +62,7 @@ const Map<MaterialType, BorderRadius?> kMaterialEdges = <MaterialType, BorderRad
 /// An interface for creating [InkSplash]s and [InkHighlight]s on a [Material].
 ///
 /// Typically obtained via [Material.of].
-abstract class MaterialInkController {
+abstract interface class MaterialInkController implements RenderObject {
   /// The color of the material.
   Color? get color;
 
@@ -76,9 +76,6 @@ abstract class MaterialInkController {
   ///
   /// The ink feature will paint as part of this controller.
   void addInkFeature(InkFeature feature);
-
-  /// Notifies the controller that one of its ink features needs to repaint.
-  void markNeedsPaint();
 }
 
 /// {@template flutter.material.material.BlankMaterial}
@@ -420,7 +417,7 @@ class Material extends StatefulWidget {
   /// * [Material.of], which is similar to this method, but asserts if
   ///   no [Material] ancestor is found.
   static MaterialInkController? maybeOf(BuildContext context) {
-    return LookupBoundary.findAncestorRenderObjectOfType<_RenderInkFeatures>(context);
+    return LookupBoundary.findAncestorRenderObjectOfType<MaterialInkController>(context);
   }
 
   /// The ink controller from the closest instance of [Material] that encloses
@@ -445,7 +442,7 @@ class Material extends StatefulWidget {
     final MaterialInkController? controller = maybeOf(context);
     assert(() {
       if (controller == null) {
-        if (LookupBoundary.debugIsHidingAncestorRenderObjectOfType<_RenderInkFeatures>(context)) {
+        if (LookupBoundary.debugIsHidingAncestorRenderObjectOfType<MaterialInkController>(context)) {
           throw FlutterError(
             'Material.of() was called with a context that does not have access to a Material widget.\n'
             'The context provided to Material.of() does have a Material widget ancestor, but it is '
