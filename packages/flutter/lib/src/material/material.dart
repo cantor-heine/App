@@ -40,14 +40,8 @@ enum MaterialType {
 
   /// A transparent piece of material that draws ink splashes and highlights.
   ///
-  /// While the material metaphor describes child widgets as printed on the
-  /// material itself and do not hide ink effects, in practice the [Material]
-  /// widget draws child widgets on top of the ink effects.
-  /// A [Material] with type transparency can be placed on top of opaque widgets
-  /// to show ink effects on top of them.
-  ///
-  /// Prefer using the [Ink] widget for showing ink effects on top of opaque
-  /// widgets.
+  /// A [Material] with the transparency type is similar to a [BlankMaterial],
+  /// and includes configuration for elevation, border, and text style.
   transparency
 }
 
@@ -85,6 +79,74 @@ abstract class MaterialInkController {
 
   /// Notifies the controller that one of its ink features needs to repaint.
   void markNeedsPaint();
+}
+
+/// {@template flutter.material.material.BlankMaterial}
+/// A transparent piece of material that enables ink splashes and highlights
+/// without any of [Material]'s decoration or implicit animations.
+///
+/// Generally, a [BlankMaterial] should be set as the child of widgets that
+/// perform clipping and decoration, and it should be the parent of widgets
+/// that create ink effects.
+///
+/// Example:
+///
+/// ```dart
+/// ClipRRect(
+///   borderRadius: BorderRadius.circular(8),
+///   child: ColoredBox(
+///     color: Colors.cyan,
+///     child: BlankMaterial(
+///       child: InkWell(
+///         onTap: () {},
+///       ),
+///     ),
+///   ),
+/// );
+/// ```
+///
+/// {@endtemplate}
+class BlankMaterial extends StatefulWidget {
+  /// {@macro flutter.material.material.BlankMaterial}
+  const BlankMaterial({super.key, this.color, this.child});
+
+  /// The value assigned to [MaterialInkController.color].
+  ///
+  /// The [BlankMaterial] widget doesn't paint this color, but the [child]
+  /// and its descendants can access its value using [Material.of], and passing
+  /// a non-transparent color configures the widget to absorb hit tests.
+  final Color? color;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
+  final Widget? child;
+
+  @override
+  State<BlankMaterial> createState() => _BlankMaterialState();
+}
+
+class _BlankMaterialState extends State<BlankMaterial> with TickerProviderStateMixin {
+  final GlobalKey _inkFeatureRenderer = GlobalKey(debugLabel: 'ink renderer');
+
+  @override
+  Widget build(BuildContext context) {
+    final Color? color = widget.color;
+    return NotificationListener<LayoutChangedNotification>(
+      onNotification: (LayoutChangedNotification notification) {
+        final _RenderInkFeatures renderer = _inkFeatureRenderer.currentContext!.findRenderObject()! as _RenderInkFeatures;
+        renderer._didChangeLayout();
+        return false;
+      },
+      child: _InkFeatures(
+        key: _inkFeatureRenderer,
+        absorbHitTest: color != null && color.alpha > 0,
+        color: color,
+        vsync: this,
+        child: widget.child,
+      ),
+    );
+  }
 }
 
 /// A piece of material.
@@ -619,11 +681,13 @@ class _InkFeatures extends SingleChildRenderObjectWidget {
     super.child,
   });
 
-  // This widget must be owned by a MaterialState, which must be provided as the vsync.
-  // This relationship must be 1:1 and cannot change for the lifetime of the MaterialState.
-
   final Color? color;
 
+  /// This [TickerProvider] will always be a [State] object; either a
+  /// [_MaterialState] or a [_BlankMaterialState].
+  ///
+  /// This relationship is 1:1 and cannot change for the lifetime of the
+  /// widget's state.
   final TickerProvider vsync;
 
   final bool absorbHitTest;
