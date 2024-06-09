@@ -1663,6 +1663,9 @@ class TestChromiumLauncher implements ChromiumLauncher {
   Future<Chromium> connect(Chromium chrome, bool skipCheck) {
     return currentCompleter.future;
   }
+
+  @override
+  String? get logDumpDirectory => null;
 }
 
 class FakeFlutterDevice extends Fake implements FlutterDevice {
