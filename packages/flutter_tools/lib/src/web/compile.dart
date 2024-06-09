@@ -172,9 +172,6 @@ class WebBuilder {
 
 /// Web rendering backend mode.
 enum WebRendererMode implements CliEnum {
-  /// Auto detects which rendering backend to use.
-  auto,
-
   /// Always uses canvaskit.
   canvaskit,
 
@@ -185,23 +182,26 @@ enum WebRendererMode implements CliEnum {
   skwasm;
 
   factory WebRendererMode.fromCliOption(String? webRendererString, {required bool useWasm}) {
-    final WebRendererMode mode = webRendererString != null
-      ? WebRendererMode.values.byName(webRendererString)
-      : WebRendererMode.auto;
-    if (mode == WebRendererMode.auto && useWasm) {
-      // Wasm defaults to skwasm
-      return WebRendererMode.skwasm;
+    if (webRendererString == null) {
+      return getDefault(useWasm: useWasm);
     }
-    return mode;
+    return WebRendererMode.values.byName(webRendererString);
   }
+
+  static WebRendererMode getDefault({required bool useWasm}) {
+    return useWasm
+        ? WebRendererMode.defaultForWasm
+        : WebRendererMode.defaultForJs;
+  }
+
+  static const WebRendererMode defaultForJs = WebRendererMode.canvaskit;
+  static const WebRendererMode defaultForWasm = WebRendererMode.skwasm;
 
   @override
   String get cliName => kebabCase(name);
 
   @override
   String get helpText => switch (this) {
-        auto =>
-          'Use the HTML renderer on mobile devices, and CanvasKit on desktop devices.',
         canvaskit =>
           'Always use the CanvasKit renderer. This renderer uses WebGL and WebAssembly to render graphics.',
         html =>
@@ -210,30 +210,21 @@ enum WebRendererMode implements CliEnum {
       };
 
   Iterable<String> get dartDefines => switch (this) {
-        WebRendererMode.auto => <String>[
-            'FLUTTER_WEB_AUTO_DETECT=true',
-          ],
-        WebRendererMode.canvaskit => <String>[
-            'FLUTTER_WEB_AUTO_DETECT=false',
+        canvaskit => <String>[
             'FLUTTER_WEB_USE_SKIA=true',
           ],
-        WebRendererMode.html => <String>[
-            'FLUTTER_WEB_AUTO_DETECT=false',
+        html => <String>[
             'FLUTTER_WEB_USE_SKIA=false',
           ],
-        WebRendererMode.skwasm => <String>[
-            'FLUTTER_WEB_AUTO_DETECT=false',
+        skwasm => <String>[
             'FLUTTER_WEB_USE_SKIA=false',
             'FLUTTER_WEB_USE_SKWASM=true',
-          ]
+          ],
       };
 
   List<String> updateDartDefines(List<String> inputDefines) {
     final Set<String> dartDefinesSet = inputDefines.toSet();
-    if (!inputDefines.any((String d) => d.startsWith('FLUTTER_WEB_AUTO_DETECT='))
-        && inputDefines.any((String d) => d.startsWith('FLUTTER_WEB_USE_SKIA='))) {
-      dartDefinesSet.removeWhere((String d) => d.startsWith('FLUTTER_WEB_USE_SKIA='));
-    }
+    dartDefinesSet.removeWhere((String d) => d.startsWith('FLUTTER_WEB_USE_SKIA='));
     dartDefinesSet.addAll(dartDefines);
     return dartDefinesSet.toList();
   }
@@ -242,10 +233,6 @@ enum WebRendererMode implements CliEnum {
 /// The correct precompiled artifact to use for each build and render mode for DDC with AMD modules.
 // TODO(markzipan): delete this when DDC's AMD module system is deprecated, https://github.com/flutter/flutter/issues/142060.
 const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kAmdDartSdkJsArtifactMap = <WebRendererMode, Map<NullSafetyMode, HostArtifact>>{
-  WebRendererMode.auto: <NullSafetyMode, HostArtifact> {
-    NullSafetyMode.sound: HostArtifact.webPrecompiledAmdCanvaskitAndHtmlSoundSdk,
-    NullSafetyMode.unsound: HostArtifact.webPrecompiledAmdCanvaskitAndHtmlSdk,
-  },
   WebRendererMode.canvaskit: <NullSafetyMode, HostArtifact> {
     NullSafetyMode.sound: HostArtifact.webPrecompiledAmdCanvaskitSoundSdk,
     NullSafetyMode.unsound: HostArtifact.webPrecompiledAmdCanvaskitSdk,
@@ -259,10 +246,6 @@ const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kAmdDartSdkJsArtif
 /// The correct source map artifact to use for each build and render mode for DDC with AMD modules.
 // TODO(markzipan): delete this when DDC's AMD module system is deprecated, https://github.com/flutter/flutter/issues/142060.
 const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kAmdDartSdkJsMapArtifactMap = <WebRendererMode, Map<NullSafetyMode, HostArtifact>>{
-  WebRendererMode.auto: <NullSafetyMode, HostArtifact> {
-    NullSafetyMode.sound: HostArtifact.webPrecompiledAmdCanvaskitAndHtmlSoundSdkSourcemaps,
-    NullSafetyMode.unsound: HostArtifact.webPrecompiledAmdCanvaskitAndHtmlSdkSourcemaps,
-  },
   WebRendererMode.canvaskit: <NullSafetyMode, HostArtifact> {
     NullSafetyMode.sound: HostArtifact.webPrecompiledAmdCanvaskitSoundSdkSourcemaps,
     NullSafetyMode.unsound: HostArtifact.webPrecompiledAmdCanvaskitSdkSourcemaps,
@@ -275,10 +258,6 @@ const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kAmdDartSdkJsMapAr
 
 /// The correct precompiled artifact to use for each build and render mode for DDC with DDC modules.
 const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kDdcDartSdkJsArtifactMap = <WebRendererMode, Map<NullSafetyMode, HostArtifact>>{
-  WebRendererMode.auto: <NullSafetyMode, HostArtifact> {
-    NullSafetyMode.sound: HostArtifact.webPrecompiledDdcCanvaskitAndHtmlSoundSdk,
-    NullSafetyMode.unsound: HostArtifact.webPrecompiledDdcCanvaskitAndHtmlSdk,
-  },
   WebRendererMode.canvaskit: <NullSafetyMode, HostArtifact> {
     NullSafetyMode.sound: HostArtifact.webPrecompiledDdcCanvaskitSoundSdk,
     NullSafetyMode.unsound: HostArtifact.webPrecompiledDdcCanvaskitSdk,
@@ -291,10 +270,6 @@ const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kDdcDartSdkJsArtif
 
 /// The correct source map artifact to use for each build and render mode for DDC with DDC modules.
 const Map<WebRendererMode, Map<NullSafetyMode, HostArtifact>> kDdcDartSdkJsMapArtifactMap = <WebRendererMode, Map<NullSafetyMode, HostArtifact>>{
-  WebRendererMode.auto: <NullSafetyMode, HostArtifact> {
-    NullSafetyMode.sound: HostArtifact.webPrecompiledDdcCanvaskitAndHtmlSoundSdkSourcemaps,
-    NullSafetyMode.unsound: HostArtifact.webPrecompiledDdcCanvaskitAndHtmlSdkSourcemaps,
-  },
   WebRendererMode.canvaskit: <NullSafetyMode, HostArtifact> {
     NullSafetyMode.sound: HostArtifact.webPrecompiledDdcCanvaskitSoundSdkSourcemaps,
     NullSafetyMode.unsound: HostArtifact.webPrecompiledDdcCanvaskitSdkSourcemaps,

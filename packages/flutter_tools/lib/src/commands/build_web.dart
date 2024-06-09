@@ -144,6 +144,7 @@ class BuildWebCommand extends BuildSubCommand {
 
     final List<WebCompilerConfig> compilerConfigs;
     if (boolArg('wasm')) {
+      // TODO(mdebbar): We probably need to change this condition.
       if (stringArg(FlutterOptions.kWebRendererFlag) != argParser.defaultFor(FlutterOptions.kWebRendererFlag)) {
         throwToolExit('"--${FlutterOptions.kWebRendererFlag}" cannot be combined with "--${FlutterOptions.kWebWasmFlag}"');
       }
@@ -158,7 +159,6 @@ class BuildWebCommand extends BuildSubCommand {
         WasmCompilerConfig(
           optimizationLevel: optimizationLevel,
           stripWasm: boolArg('strip-wasm'),
-          renderer: WebRendererMode.skwasm,
         ),
         JsCompilerConfig(
           csp: boolArg('csp'),
@@ -167,10 +167,9 @@ class BuildWebCommand extends BuildSubCommand {
           nativeNullAssertions: boolArg('native-null-assertions'),
           noFrequencyBasedMinification: boolArg('no-frequency-based-minification'),
           sourceMaps: boolArg('source-maps'),
-          renderer: WebRendererMode.canvaskit,
         )];
     } else {
-      WebRendererMode webRenderer = WebRendererMode.auto;
+      WebRendererMode webRenderer = WebRendererMode.defaultForJs;
       if (argParser.options.containsKey(FlutterOptions.kWebRendererFlag)) {
         webRenderer = WebRendererMode.values.byName(stringArg(FlutterOptions.kWebRendererFlag)!);
       }
