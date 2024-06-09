@@ -411,4 +411,7 @@ class _ScrollActivityDelegate extends ScrollActivityDelegate {
 
   @override
   double setPixels(double pixels) => 0.0;
+
+  @override
+  bool get outOfRange => false;
 }
