@@ -473,11 +473,7 @@ class _RangeSliderState extends State<RangeSlider> with TickerProviderStateMixin
     final bool wasEnabled = oldWidget.onChanged != null;
     final bool isEnabled = _enabled;
     if (wasEnabled != isEnabled) {
-      if (isEnabled) {
-        enableController.forward();
-      } else {
-        enableController.reverse();
-      }
+      enableController.toggle(isEnabled);
     }
   }
 
@@ -1088,11 +1084,9 @@ class _RenderRangeSlider extends RenderBox with RelayoutWhenSystemFontsChangeMix
 
   void _updateForHover(bool hovered) {
     // Only show overlay when pointer is hovering the thumb.
-    if (hovered && (hoveringStartThumb || hoveringEndThumb)) {
-      _state.overlayController.forward();
-    } else {
-      _state.overlayController.reverse();
-    }
+    _state.overlayController.toggle(
+      hovered && (hoveringStartThumb || hoveringEndThumb),
+    );
   }
 
   bool get showValueIndicator {

@@ -301,12 +301,10 @@ class _AnimatedCrossFadeState extends State<AnimatedCrossFade> with TickerProvid
       _secondAnimation = _initAnimation(widget.secondCurve, false);
     }
     if (widget.crossFadeState != oldWidget.crossFadeState) {
-      switch (widget.crossFadeState) {
-        case CrossFadeState.showFirst:
-          _controller.reverse();
-        case CrossFadeState.showSecond:
-          _controller.forward();
-      }
+      _controller.toggle(switch (widget.crossFadeState) {
+        CrossFadeState.showFirst => false,
+        CrossFadeState.showSecond => true,
+      });
     }
   }
 

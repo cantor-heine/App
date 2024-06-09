@@ -521,11 +521,9 @@ class _DismissibleState extends State<Dismissible> with TickerProviderStateMixin
         _moveController!.fling(velocity: -flingVelocity.abs() * _kFlingVelocityScale);
       case _FlingGestureKind.none:
         if (!_moveController!.isDismissed) { // we already know it's not completed, we check that above
-          if (_moveController!.value > (widget.dismissThresholds[_dismissDirection] ?? _kDismissThreshold)) {
-            _moveController!.forward();
-          } else {
-            _moveController!.reverse();
-          }
+          _moveController!.toggle(
+            _moveController!.value > (widget.dismissThresholds[_dismissDirection] ?? _kDismissThreshold),
+          );
         }
     }
   }

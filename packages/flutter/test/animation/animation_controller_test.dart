@@ -42,14 +42,12 @@ void main() {
     bool didComplete = false;
     bool didDismiss = false;
     controller.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.completed) {
+      if (status.isCompleted) {
         didComplete = true;
-        controller.value = 0.0;
-        controller.forward();
-      } else if (status == AnimationStatus.dismissed) {
+        controller.forward(from: 0.0);
+      } else if (status.isDismissed) {
         didDismiss = true;
-        controller.value = 0.0;
-        controller.forward();
+        controller.forward(from: 0.0);
       }
     });
 
