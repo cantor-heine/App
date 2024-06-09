@@ -260,17 +260,19 @@ void main() {
       vsync: const TestVSync(),
     );
 
-    controller.toggle();
+    controller.toggle(true);
     tick(const Duration(milliseconds: 10));
     tick(const Duration(milliseconds: 30));
     expect(controller.value, moreOrLessEquals(0.4));
+    controller.toggle(true);
+    tick(const Duration(milliseconds: 10));
     tick(const Duration(milliseconds: 60));
     expect(controller.value, moreOrLessEquals(1.0));
     tick(const Duration(milliseconds: 90));
     expect(controller.value, moreOrLessEquals(1.0));
     controller.stop();
 
-    controller.toggle();
+    controller.toggle(false);
     tick(const Duration(milliseconds: 210));
     tick(const Duration(milliseconds: 220));
     expect(controller.value, moreOrLessEquals(0.9));
