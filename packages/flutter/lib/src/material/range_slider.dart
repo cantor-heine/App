@@ -1084,9 +1084,11 @@ class _RenderRangeSlider extends RenderBox with RelayoutWhenSystemFontsChangeMix
 
   void _updateForHover(bool hovered) {
     // Only show overlay when pointer is hovering the thumb.
-    _state.overlayController.toggle(
-      hovered && (hoveringStartThumb || hoveringEndThumb),
-    );
+    if (hovered && (hoveringStartThumb || hoveringEndThumb)) {
+      _state.overlayController.forward();
+    } else {
+      _state.overlayController.reverse();
+    }
   }
 
   bool get showValueIndicator {
