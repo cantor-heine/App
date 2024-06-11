@@ -7158,4 +7158,54 @@ void main() {
     labelSize = tester.getSize(find.text('Tab 1'));
     expect(labelSize, equals(const Size(140.5, 40.0)));
   }, skip: isBrowser && !isSkiaWeb); // https://github.com/flutter/flutter/issues/87543
+
+  // This is a regression test for https://github.com/flutter/flutter/issues/150000.
+  testWidgets('Scrollable TabBar does not jitter in the middle position', (WidgetTester tester) async {
+    final List<String> tabs = List<String>.generate(20, (int index) => 'Tab $index');
+    late TabController tabController;
+
+    Widget buildTabControllerFrame(BuildContext context, TabController controller) {
+      tabController = controller;
+      return MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              controller: tabController,
+              isScrollable: true,
+              tabs: tabs.map((String tab) => Tab(text: tab)).toList(),
+            ),
+          ),
+          body: TabBarView(
+            controller: tabController,
+            children: <Widget>[
+              for (int i = 0; i < tabs.length; i++)
+                Center(
+                  child: Text('Page $i'),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(TabControllerFrame(
+      builder: buildTabControllerFrame,
+      length: tabs.length,
+      initialIndex: tabs.indexOf('Tab 10'), // Start at the middle tab bar position.
+    ));
+
+    final SingleChildScrollView scrollable = tester.widget(find.byType(SingleChildScrollView));
+    expect(find.text('Page 10'), findsOneWidget);
+    expect(find.text('Page 11'), findsNothing);
+    expect(scrollable.controller!.position.pixels, closeTo(683.2, 0.1));
+
+    // Drag the TabBarView to the left.
+    await tester.drag(find.byType(TabBarView), const Offset(-800, 0));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.text('Page 10'), findsNothing);
+    expect(find.text('Page 11'), findsOneWidget);
+    expect(scrollable.controller!.position.pixels, closeTo(799.8, 0.1));
+  });
 }
