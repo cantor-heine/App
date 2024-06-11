@@ -854,6 +854,7 @@ class MenuItemButton extends StatefulWidget {
     this.requestFocusOnHover = true,
     this.onFocusChange,
     this.focusNode,
+    this.autofocus = false,
     this.shortcut,
     this.semanticsLabel,
     this.style,
@@ -894,6 +895,9 @@ class MenuItemButton extends StatefulWidget {
 
   /// {@macro flutter.widgets.Focus.focusNode}
   final FocusNode? focusNode;
+
+  /// {@macro flutter.widgets.Focus.autofocus}
+  final bool autofocus;
 
   /// The optional shortcut that selects this [MenuItemButton].
   ///
@@ -1138,6 +1142,7 @@ class _MenuItemButtonState extends State<MenuItemButton> {
       onFocusChange: widget.enabled ? widget.onFocusChange : null,
       focusNode: _focusNode,
       style: mergedStyle,
+      autofocus: widget.enabled && widget.autofocus,
       statesController: widget.statesController,
       clipBehavior: widget.clipBehavior,
       isSemanticButton: null,
