@@ -106,11 +106,10 @@ class Checkbox extends StatefulWidget {
   /// graphics expected on iOS. On other platforms, this creates a Material
   /// design [Checkbox].
   ///
-  /// If a [CupertinoCheckbox] is created, the following parameters are ignored:
-  /// [mouseCursor], [fillColor], [hoverColor], [overlayColor], [splashRadius],
-  /// [materialTapTargetSize], [visualDensity], [isError]. However, [shape] and
-  /// [side] will still affect the [CupertinoCheckbox] and should be handled if
-  /// native fidelity is important.
+  /// If a [CupertinoCheckbox] is created, [hoverColor], [overlayColor], and
+  /// [splashRadius] are ignored because a Cupertino-design checkbox does not
+  /// have a radial reaction overlay. [materialTapTargetSize] and [visualDensity]
+  /// are also ignored because both are Material-design-specific configurations.
   ///
   /// The target platform is based on the current [Theme]: [ThemeData.platform].
   const Checkbox.adaptive({
@@ -488,13 +487,17 @@ class _CheckboxState extends State<Checkbox> with TickerProviderStateMixin, Togg
               value: value,
               tristate: tristate,
               onChanged: onChanged,
+              mouseCursor: widget.mouseCursor,
               activeColor: widget.activeColor,
+              fillColor: widget.fillColor,
               checkColor: widget.checkColor,
               focusColor: widget.focusColor,
               focusNode: widget.focusNode,
               autofocus: widget.autofocus,
               side: widget.side,
               shape: widget.shape,
+              isError: widget.isError,
+              semanticLabel: widget.semanticLabel,
             );
         }
     }
