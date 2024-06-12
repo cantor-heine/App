@@ -1296,7 +1296,7 @@ void main() {
     ));
 
     // By default the hint contributes the label.
-    expect(tester.getSemantics(find.byKey(key)), matchesSemantics(
+    expect(tester.getSemantics(find.text('test')), matchesSemantics(
       isButton: true,
       label: 'test',
       hasTapAction: true,
@@ -1310,8 +1310,8 @@ void main() {
       hint: const Text('test'),
     ));
 
-    // Displays label of select item and is no longer tappable.
-    expect(tester.getSemantics(find.byKey(key)), matchesSemantics(
+    // Displays label of select item.
+    expect(tester.getSemantics(find.text('three')), matchesSemantics(
       isButton: true,
       label: 'three',
       hasTapAction: true,
@@ -1356,6 +1356,7 @@ void main() {
                           label: 'one',
                           textDirection: TextDirection.ltr,
                           flags: <SemanticsFlag>[
+                            SemanticsFlag.isButton,
                             SemanticsFlag.isFocused,
                             SemanticsFlag.isFocusable,
                           ],
@@ -1365,21 +1366,30 @@ void main() {
                         TestSemantics(
                           label: 'two',
                           textDirection: TextDirection.ltr,
-                          flags: <SemanticsFlag>[SemanticsFlag.isFocusable],
+                          flags: <SemanticsFlag>[
+                            SemanticsFlag.isButton,
+                            SemanticsFlag.isFocusable,
+                          ],
                           tags: <SemanticsTag>[const SemanticsTag('RenderViewport.twoPane')],
                           actions: <SemanticsAction>[SemanticsAction.tap],
                         ),
                         TestSemantics(
                           label: 'three',
                           textDirection: TextDirection.ltr,
-                          flags: <SemanticsFlag>[SemanticsFlag.isFocusable],
+                          flags: <SemanticsFlag>[
+                            SemanticsFlag.isButton,
+                            SemanticsFlag.isFocusable,
+                          ],
                           tags: <SemanticsTag>[const SemanticsTag('RenderViewport.twoPane')],
                           actions: <SemanticsAction>[SemanticsAction.tap],
                         ),
                         TestSemantics(
                           label: 'four',
                           textDirection: TextDirection.ltr,
-                          flags: <SemanticsFlag>[SemanticsFlag.isFocusable],
+                          flags: <SemanticsFlag>[
+                            SemanticsFlag.isButton,
+                            SemanticsFlag.isFocusable,
+                          ],
                           tags: <SemanticsTag>[const SemanticsTag('RenderViewport.twoPane')],
                           actions: <SemanticsAction>[SemanticsAction.tap],
                         ),
