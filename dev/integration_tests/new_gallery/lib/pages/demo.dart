@@ -134,11 +134,9 @@ class _GalleryDemoPageState extends State<GalleryDemoPage>
   void setStateAndUpdate(VoidCallback callback) {
     setState(() {
       callback();
-      if (_demoStateIndex.value == _DemoState.code.index) {
-        _codeBackgroundColorController.forward();
-      } else {
-        _codeBackgroundColorController.reverse();
-      }
+      _codeBackgroundColorController.toggle(
+        _demoStateIndex.value == _DemoState.code.index,
+      );
     });
   }
 

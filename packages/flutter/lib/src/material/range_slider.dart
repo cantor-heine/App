@@ -473,11 +473,7 @@ class _RangeSliderState extends State<RangeSlider> with TickerProviderStateMixin
     final bool wasEnabled = oldWidget.onChanged != null;
     final bool isEnabled = _enabled;
     if (wasEnabled != isEnabled) {
-      if (isEnabled) {
-        enableController.forward();
-      } else {
-        enableController.reverse();
-      }
+      enableController.toggle(isEnabled);
     }
   }
 
