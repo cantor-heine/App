@@ -1372,4 +1372,28 @@ void main() {
       await tester.pumpWidget(createPageView(null));
     });
   });
+
+
+  // This is a regression test for https://github.com/flutter/flutter/issues/146986
+  testWidgets('Get the page value before the content dimension is determined, do not throw an assertion, and return null', (WidgetTester tester) async {
+    final PageController controller = PageController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: PageView(
+          controller: controller,
+          children: <Widget>[
+            Builder(
+              builder: (BuildContext context) {
+                final double currentPage = controller.hasClients ? controller.page ?? -1.0 : -2.0;
+                return Center(child: Text(currentPage.toString()));
+              },
+            ),
+          ],
+        ),
+      ),
+    ));
+
+    expect(find.text('-1.0'), findsOneWidget);
+  });
 }
