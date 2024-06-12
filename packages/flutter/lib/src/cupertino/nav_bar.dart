@@ -31,6 +31,10 @@ const double _kNavBarLargeTitleHeightExtension = 52.0;
 /// from the normal navigation bar to a big title below the navigation bar.
 const double _kNavBarShowLargeTitleThreshold = 10.0;
 
+/// Number of logical pixels scrolled during which the navigation bar's background
+/// fades in or out.
+const double _kNavBarScrollUnderAnimationExtent = 10.0;
+
 const double _kNavBarEdgePadding = 16.0;
 
 const double _kNavBarBottomPadding = 8.0;
@@ -125,16 +129,21 @@ class _FixedSizeSlidingTransition extends AnimatedWidget {
 }
 
 /// Returns `child` wrapped with background and a bottom border if background color
-/// is opaque. Otherwise, also blur with [BackdropFilter].
+/// is opaque. Otherwise, also blur with [BackdropFilter] if content scrolls under
+/// the nav bar.
 ///
 /// When `updateSystemUiOverlay` is true, the nav bar will update the OS
 /// status bar's color theme based on the background color of the nav bar.
+///
+/// When `isContentScrolledUnder` is true, the nav bar will render a blurred
+/// background when the content scrolls under the nav bar.
 Widget _wrapWithBackground({
   Border? border,
   required Color backgroundColor,
   Brightness? brightness,
   required Widget child,
   bool updateSystemUiOverlay = true,
+  bool isContentScrolledUnder = false,
 }) {
   Widget result = child;
   if (updateSystemUiOverlay) {
@@ -169,13 +178,11 @@ Widget _wrapWithBackground({
     child: result,
   );
 
-  if (backgroundColor.alpha == 0xFF) {
-    return childWithBackground;
-  }
-
   return ClipRect(
     child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+      filter: backgroundColor.alpha == 0xFF || !isContentScrolledUnder
+        ? ImageFilter.blur()
+        : ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
       child: childWithBackground,
     ),
   );
@@ -257,6 +264,7 @@ class CupertinoNavigationBar extends StatefulWidget implements ObstructingPrefer
     this.trailing,
     this.border = _kDefaultNavBarBorder,
     this.backgroundColor,
+    this.automaticBackgroundVisibility = true,
     this.brightness,
     this.padding,
     this.transitionBetweenRoutes = true,
@@ -338,6 +346,19 @@ class CupertinoNavigationBar extends StatefulWidget implements ObstructingPrefer
   /// Defaults to [CupertinoTheme]'s `barBackgroundColor` if null.
   /// {@endtemplate}
   final Color? backgroundColor;
+
+  /// {@template flutter.cupertino.CupertinoNavigationBar.automaticBackgroundVisibility}
+  /// Whether the navigation bar appears transparent when no content is scrolled under.
+  ///
+  /// If this is true, the navigation bar's background color will be transparent
+  /// until the content scrolls under it. If false, the navigation bar will always
+  /// use [backgroundColor] as its background color.
+  ///
+  /// If the navigation bar is not a child of a [CupertinoPageScaffold], this has no effect.
+  ///
+  /// This value defaults to true.
+  /// {@endtemplate}
+  final bool automaticBackgroundVisibility;
 
   /// {@template flutter.cupertino.CupertinoNavigationBar.brightness}
   /// The brightness of the specified [backgroundColor].
@@ -432,16 +453,82 @@ class CupertinoNavigationBar extends StatefulWidget implements ObstructingPrefer
 class _CupertinoNavigationBarState extends State<CupertinoNavigationBar> {
   late _NavigationBarStaticComponentsKeys keys;
 
+  ScrollNotificationObserverState? _scrollNotificationObserver;
+  double _scrollAnimationValue = 0.0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scrollNotificationObserver?.removeListener(_handleScrollNotification);
+    _scrollNotificationObserver = ScrollNotificationObserver.maybeOf(context);
+    _scrollNotificationObserver?.addListener(_handleScrollNotification);
+  }
+
+  @override
+  void dispose() {
+    if (_scrollNotificationObserver != null) {
+      _scrollNotificationObserver!.removeListener(_handleScrollNotification);
+      _scrollNotificationObserver = null;
+    }
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     keys = _NavigationBarStaticComponentsKeys();
   }
 
+  void _handleScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification && notification.depth == 0) {
+      final ScrollMetrics metrics = notification.metrics;
+      final double oldScrollAnimationValue = _scrollAnimationValue;
+      double scrollExtent = 0.0;
+      switch (metrics.axisDirection) {
+        case AxisDirection.up:
+          // Scroll view is reversed
+          scrollExtent = metrics.extentAfter;
+        case AxisDirection.down:
+          scrollExtent = metrics.extentBefore;
+        case AxisDirection.right:
+        case AxisDirection.left:
+          // Scrolled under is only supported in the vertical axis, and should
+          // not be altered based on horizontal notifications of the same
+          // predicate since it could be a 2D scroller.
+          break;
+      }
+
+      if (scrollExtent >= 0 && scrollExtent < _kNavBarScrollUnderAnimationExtent) {
+        setState(() {
+          _scrollAnimationValue = clampDouble(scrollExtent / _kNavBarScrollUnderAnimationExtent, 0, 1);
+        });
+      } else if (scrollExtent > _kNavBarScrollUnderAnimationExtent && oldScrollAnimationValue != 1.0) {
+        setState(() {
+          _scrollAnimationValue = 1.0;
+        });
+      } else if (scrollExtent <= 0 && oldScrollAnimationValue != 0.0) {
+        setState(() {
+          _scrollAnimationValue = 0.0;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor =
       CupertinoDynamicColor.maybeResolve(widget.backgroundColor, context) ?? CupertinoTheme.of(context).barBackgroundColor;
+
+    final Color? parentPageScaffoldBackgroundColor = CupertinoPageScaffoldBackgroundColor.maybeOf(context);
+
+    final Border? initialBorder = widget.automaticBackgroundVisibility && parentPageScaffoldBackgroundColor != null
+      ? const Border(bottom: BorderSide(width: 0.0, color: Color(0x00000000)))
+      : widget.border;
+    final Border? effectiveBorder = widget.border == null ? null : Border.lerp(initialBorder, widget.border, _scrollAnimationValue,);
+
+    final Color effectiveBackgroundColor = widget.automaticBackgroundVisibility && parentPageScaffoldBackgroundColor != null
+      ? Color.lerp(parentPageScaffoldBackgroundColor, backgroundColor, _scrollAnimationValue) ?? backgroundColor
+      : backgroundColor;
 
     final _NavigationBarStaticComponents components = _NavigationBarStaticComponents(
       keys: keys,
@@ -458,8 +545,9 @@ class _CupertinoNavigationBarState extends State<CupertinoNavigationBar> {
     );
 
     final Widget navBar = _wrapWithBackground(
-      border: widget.border,
-      backgroundColor: backgroundColor,
+      isContentScrolledUnder: _scrollAnimationValue > 0.0,
+      border: effectiveBorder,
+      backgroundColor: effectiveBackgroundColor,
       brightness: widget.brightness,
       child: DefaultTextStyle(
         style: CupertinoTheme.of(context).textTheme.textStyle,
@@ -488,13 +576,14 @@ class _CupertinoNavigationBarState extends State<CupertinoNavigationBar> {
           transitionOnUserGestures: true,
           child: _TransitionableNavigationBar(
             componentsKeys: keys,
-            backgroundColor: backgroundColor,
+            backgroundColor: effectiveBackgroundColor,
             backButtonTextStyle: CupertinoTheme.of(context).textTheme.navActionTextStyle,
             titleTextStyle: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
             largeTitleTextStyle: null,
-            border: widget.border,
+            border: effectiveBorder,
             hasUserMiddle: widget.middle != null,
             largeExpanded: false,
+            isContentScrolledUnder: _scrollAnimationValue > 0.0,
             child: navBar,
           ),
         );
@@ -584,6 +673,7 @@ class CupertinoSliverNavigationBar extends StatefulWidget {
     this.trailing,
     this.border = _kDefaultNavBarBorder,
     this.backgroundColor,
+    this.automaticBackgroundVisibility = true,
     this.brightness,
     this.padding,
     this.transitionBetweenRoutes = true,
@@ -665,6 +755,9 @@ class CupertinoSliverNavigationBar extends StatefulWidget {
   /// {@macro flutter.cupertino.CupertinoNavigationBar.backgroundColor}
   final Color? backgroundColor;
 
+  /// {@macro flutter.cupertino.CupertinoNavigationBar.automaticBackgroundVisibility}
+  final bool automaticBackgroundVisibility;
+
   /// {@macro flutter.cupertino.CupertinoNavigationBar.brightness}
   final Brightness? brightness;
 
@@ -735,6 +828,7 @@ class _CupertinoSliverNavigationBarState extends State<CupertinoSliverNavigation
           components: components,
           userMiddle: widget.middle,
           backgroundColor: CupertinoDynamicColor.maybeResolve(widget.backgroundColor, context) ?? CupertinoTheme.of(context).barBackgroundColor,
+          automaticBackgroundVisibility: widget.automaticBackgroundVisibility,
           brightness: widget.brightness,
           border: widget.border,
           padding: widget.padding,
@@ -757,6 +851,7 @@ class _LargeTitleNavigationBarSliverDelegate
     required this.components,
     required this.userMiddle,
     required this.backgroundColor,
+    required this.automaticBackgroundVisibility,
     required this.brightness,
     required this.border,
     required this.padding,
@@ -772,6 +867,7 @@ class _LargeTitleNavigationBarSliverDelegate
   final _NavigationBarStaticComponents components;
   final Widget? userMiddle;
   final Color backgroundColor;
+  final bool automaticBackgroundVisibility;
   final Brightness? brightness;
   final Border? border;
   final EdgeInsetsDirectional? padding;
@@ -792,7 +888,13 @@ class _LargeTitleNavigationBarSliverDelegate
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final bool showLargeTitle = shrinkOffset < maxExtent - minExtent - _kNavBarShowLargeTitleThreshold;
+    final double largeTitleThreshold = maxExtent - minExtent - _kNavBarShowLargeTitleThreshold;
+    final bool showLargeTitle = shrinkOffset < largeTitleThreshold;
+    final double shrinkAnimationValue = clampDouble(
+      (shrinkOffset - largeTitleThreshold - _kNavBarScrollUnderAnimationExtent) / _kNavBarScrollUnderAnimationExtent,
+      0,
+      1,
+    );
 
     final _PersistentNavigationBar persistentNavigationBar =
         _PersistentNavigationBar(
@@ -803,9 +905,21 @@ class _LargeTitleNavigationBarSliverDelegate
       middleVisible: alwaysShowMiddle ? null : !showLargeTitle,
     );
 
+    final Color? parentPageScaffoldBackgroundColor = CupertinoPageScaffoldBackgroundColor.maybeOf(context);
+
+    final Border? initialBorder = automaticBackgroundVisibility && parentPageScaffoldBackgroundColor != null
+        ? const Border(bottom: BorderSide(width: 0.0, color: Color(0x00000000)))
+        : border;
+    final Border? effectiveBorder = border == null ? null : Border.lerp(initialBorder, border, shrinkAnimationValue);
+
+    final Color effectiveBackgroundColor = automaticBackgroundVisibility && parentPageScaffoldBackgroundColor != null
+        ? Color.lerp(parentPageScaffoldBackgroundColor, backgroundColor, shrinkAnimationValue) ?? backgroundColor
+        : backgroundColor;
+
     final Widget navBar = _wrapWithBackground(
-      border: border,
-      backgroundColor: CupertinoDynamicColor.resolve(backgroundColor, context),
+      isContentScrolledUnder: shrinkAnimationValue > 0.0,
+      border: effectiveBorder,
+      backgroundColor: effectiveBackgroundColor,
       brightness: brightness,
       child: DefaultTextStyle(
         style: CupertinoTheme.of(context).textTheme.textStyle,
@@ -875,13 +989,14 @@ class _LargeTitleNavigationBarSliverDelegate
       // needs to wrap the top level RenderBox rather than a RenderSliver.
       child: _TransitionableNavigationBar(
         componentsKeys: keys,
-        backgroundColor: CupertinoDynamicColor.resolve(backgroundColor, context),
+        backgroundColor: effectiveBackgroundColor,
         backButtonTextStyle: CupertinoTheme.of(context).textTheme.navActionTextStyle,
         titleTextStyle: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
         largeTitleTextStyle: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
-        border: border,
+        border: effectiveBorder,
         hasUserMiddle: userMiddle != null && (alwaysShowMiddle || !showLargeTitle),
         largeExpanded: showLargeTitle,
+        isContentScrolledUnder: shrinkAnimationValue > 0.0,
         child: navBar,
       ),
     );
@@ -892,6 +1007,7 @@ class _LargeTitleNavigationBarSliverDelegate
     return components != oldDelegate.components
         || userMiddle != oldDelegate.userMiddle
         || backgroundColor != oldDelegate.backgroundColor
+        || automaticBackgroundVisibility != oldDelegate.automaticBackgroundVisibility
         || border != oldDelegate.border
         || padding != oldDelegate.padding
         || actionsForegroundColor != oldDelegate.actionsForegroundColor
@@ -1629,6 +1745,7 @@ class _TransitionableNavigationBar extends StatelessWidget {
     required this.border,
     required this.hasUserMiddle,
     required this.largeExpanded,
+    required this.isContentScrolledUnder,
     required this.child,
   }) : assert(!largeExpanded || largeTitleTextStyle != null),
        super(key: componentsKeys.navBarBoxKey);
@@ -1641,6 +1758,7 @@ class _TransitionableNavigationBar extends StatelessWidget {
   final Border? border;
   final bool hasUserMiddle;
   final bool largeExpanded;
+  final bool isContentScrolledUnder;
   final Widget child;
 
   RenderBox get renderBox {
@@ -1704,6 +1822,7 @@ class _NavigationBarTransition extends StatelessWidget {
     required this.animation,
     required this.topNavBar,
     required this.bottomNavBar,
+    required this.flightDirection,
   }) : heightTween = Tween<double>(
          begin: bottomNavBar.renderBox.size.height,
          end: topNavBar.renderBox.size.height,
@@ -1724,6 +1843,7 @@ class _NavigationBarTransition extends StatelessWidget {
   final Tween<double> heightTween;
   final ColorTween backgroundTween;
   final BorderTween borderTween;
+  final HeroFlightDirection flightDirection;
 
   @override
   Widget build(BuildContext context) {
@@ -1741,6 +1861,9 @@ class _NavigationBarTransition extends StatelessWidget {
         animation: animation,
         builder: (BuildContext context, Widget? child) {
           return _wrapWithBackground(
+            isContentScrolledUnder: flightDirection == HeroFlightDirection.push
+              ? topNavBar.isContentScrolledUnder
+              : bottomNavBar.isContentScrolledUnder,
             // Don't update the system status bar color mid-flight.
             updateSystemUiOverlay: false,
             backgroundColor: backgroundTween.evaluate(animation)!,
@@ -2480,12 +2603,14 @@ Widget _navBarHeroFlightShuttleBuilder(
         animation: animation,
         bottomNavBar: fromNavBar,
         topNavBar: toNavBar,
+        flightDirection: flightDirection,
       );
     case HeroFlightDirection.pop:
       return _NavigationBarTransition(
         animation: animation,
         bottomNavBar: toNavBar,
         topNavBar: fromNavBar,
+        flightDirection: flightDirection,
       );
   }
 }
