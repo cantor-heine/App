@@ -63,6 +63,7 @@ import 'tab_bar_theme.dart';
 import 'text_button_theme.dart';
 import 'text_selection_theme.dart';
 import 'text_theme.dart';
+import 'theme.dart';
 import 'time_picker_theme.dart';
 import 'toggle_buttons_theme.dart';
 import 'tooltip_theme.dart';
@@ -170,7 +171,1093 @@ enum MaterialTapTargetSize {
 
   /// Shrinks the tap target size to the minimum provided by the Material
   /// specification.
-  shrinkWrap,
+  shrinkWrap;
+
+  factory MaterialTapTargetSize.platformDefault([TargetPlatform? platform]) {
+    return switch (platform ?? defaultTargetPlatform) {
+      TargetPlatform.android || TargetPlatform.fuchsia || TargetPlatform.iOS => padded,
+      TargetPlatform.linux || TargetPlatform.macOS || TargetPlatform.windows => shrinkWrap,
+    };
+  }
+}
+
+/// {@template flutter.material.theme_data.ThemeConfiguration}
+/// Stores the values passed into the [ThemeData] constructor.
+///
+/// Used in [Theme.merge].
+/// {@endtemplate}
+class ThemeConfiguration {
+  /// {@macro flutter.material.theme_data.ThemeConfiguration}
+  const ThemeConfiguration({
+    this.adaptations,
+    this.applyElevationOverlayColor,
+    this.cupertinoOverrideTheme,
+    this.extensions,
+    this.inputDecorationTheme,
+    this.materialTapTargetSize,
+    this.pageTransitionsTheme,
+    this.platform,
+    this.scrollbarTheme,
+    this.splashFactory,
+    this.useMaterial3,
+    this.visualDensity,
+    this.colorScheme,
+    this.brightness,
+    this.colorSchemeSeed,
+    this.canvasColor,
+    this.cardColor,
+    this.dialogBackgroundColor,
+    this.disabledColor,
+    this.dividerColor,
+    this.focusColor,
+    this.highlightColor,
+    this.hintColor,
+    this.hoverColor,
+    this.indicatorColor,
+    this.primaryColor,
+    this.primaryColorDark,
+    this.primaryColorLight,
+    this.primarySwatch,
+    this.scaffoldBackgroundColor,
+    this.secondaryHeaderColor,
+    this.shadowColor,
+    this.splashColor,
+    this.unselectedWidgetColor,
+    this.fontFamily,
+    this.fontFamilyFallback,
+    this.package,
+    this.iconTheme,
+    this.primaryIconTheme,
+    this.primaryTextTheme,
+    this.textTheme,
+    this.typography,
+    this.actionIconTheme,
+    this.appBarTheme,
+    this.badgeTheme,
+    this.bannerTheme,
+    this.bottomAppBarTheme,
+    this.bottomNavigationBarTheme,
+    this.bottomSheetTheme,
+    this.buttonTheme,
+    this.cardTheme,
+    this.checkboxTheme,
+    this.chipTheme,
+    this.dataTableTheme,
+    this.datePickerTheme,
+    this.dialogTheme,
+    this.dividerTheme,
+    this.drawerTheme,
+    this.dropdownMenuTheme,
+    this.elevatedButtonTheme,
+    this.expansionTileTheme,
+    this.filledButtonTheme,
+    this.floatingActionButtonTheme,
+    this.iconButtonTheme,
+    this.listTileTheme,
+    this.menuBarTheme,
+    this.menuButtonTheme,
+    this.menuTheme,
+    this.navigationBarTheme,
+    this.navigationDrawerTheme,
+    this.navigationRailTheme,
+    this.outlinedButtonTheme,
+    this.popupMenuTheme,
+    this.progressIndicatorTheme,
+    this.radioTheme,
+    this.searchBarTheme,
+    this.searchViewTheme,
+    this.segmentedButtonTheme,
+    this.sliderTheme,
+    this.snackBarTheme,
+    this.switchTheme,
+    this.tabBarTheme,
+    this.textButtonTheme,
+    this.textSelectionTheme,
+    this.timePickerTheme,
+    this.toggleButtonsTheme,
+    this.tooltipTheme,
+    @Deprecated(
+      'Use OverflowBar instead. '
+      'This feature was deprecated after v3.21.0-10.0.pre.',
+    )
+    this.buttonBarTheme,
+  });
+
+  // For the sanity of the reader, make sure these properties are in the same
+  // order in every place that they are separated by section comments (e.g.
+  // GENERAL CONFIGURATION). Each section except for deprecations should be
+  // alphabetical by symbol name.
+
+  // GENERAL CONFIGURATION
+  /// An iterable which contains the adaptations for the theme.
+  ///
+  /// To obtain an adaptation, use [ThemeData.getAdaptation].
+  final Iterable<Adaptation<Object>>? adaptations;
+
+  /// {@macro flutter.material.theme_data.applyElevationOverlayColor}
+  final bool? applyElevationOverlayColor;
+
+  /// {@macro flutter.material.theme_data.cupertinoOverrideTheme}
+  final NoDefaultCupertinoThemeData? cupertinoOverrideTheme;
+
+  /// {@macro flutter.material.theme_data.extensions}
+  final Iterable<ThemeExtension<dynamic>>? extensions;
+
+  /// {@macro flutter.material.theme_data.inputDecorationTheme}
+  final InputDecorationTheme? inputDecorationTheme;
+
+  /// {@macro flutter.material.theme_data.materialTapTargetSize}
+  final MaterialTapTargetSize? materialTapTargetSize;
+
+  /// {@macro flutter.material.theme_data.pageTransitionsTheme}
+  final PageTransitionsTheme? pageTransitionsTheme;
+
+  /// {@macro flutter.material.theme_data.platform}
+  final TargetPlatform? platform;
+
+  /// A theme for customizing the colors, thickness, and shape of [Scrollbar]s.
+  final ScrollbarThemeData? scrollbarTheme;
+
+  /// {@macro flutter.material.theme_data.splashFactory}
+  final InteractiveInkFeatureFactory? splashFactory;
+
+  /// {@macro flutter.material.theme_data.useMaterial3}
+  final bool? useMaterial3;
+
+  /// The density value for specifying the compactness of various UI components.
+  ///
+  /// {@macro flutter.material.themedata.visualDensity}
+  final VisualDensity? visualDensity;
+
+  // COLOR
+
+  /// {@macro flutter.material.color_scheme.ColorScheme}
+  ///
+  /// This property was added much later than the theme's set of highly specific
+  /// colors, like [cardColor], [canvasColor] etc. New components can be defined
+  /// exclusively in terms of [colorScheme]. Existing components will gradually
+  /// migrate to it, to the extent that is possible without significant
+  /// backwards compatibility breaks.
+  final ColorScheme? colorScheme;
+
+  /// {@macro flutter.material.theme_data.brightness}
+  final Brightness? brightness;
+
+  /// Used in [ColorScheme.fromSeed] to generate the full color scheme.
+  ///
+  /// {@macro flutter.material.color_scheme.seedColor}
+  final Color? colorSchemeSeed;
+
+  // [colorScheme] is the preferred way to configure colors. The [Color] properties
+  // listed below (as well as primarySwatch) will gradually be phased out, see
+  // https://github.com/flutter/flutter/issues/91772.
+
+  /// The default color of [MaterialType.canvas] [Material].
+  final Color? canvasColor;
+
+  /// The color of [Material] when it is used as a [Card].
+  final Color? cardColor;
+
+  /// The background color of [Dialog] elements.
+  final Color? dialogBackgroundColor;
+
+  /// {@macro flutter.material.theme_data.disabledColor}
+  final Color? disabledColor;
+
+  /// {@macro flutter.material.theme_data.dividerColor}
+  final Color? dividerColor;
+
+  /// The focus color used indicate that a component has the input focus.
+  final Color? focusColor;
+
+  /// {@macro flutter.material.theme_data.highlightColor}
+  final Color? highlightColor;
+
+  /// {@macro flutter.material.theme_data.hintColor}
+  final Color? hintColor;
+
+  /// {@macro flutter.material.theme_data.hoverColor}
+  final Color? hoverColor;
+
+  /// The color of the selected tab indicator in a tab bar.
+  final Color? indicatorColor;
+
+  /// {@macro flutter.material.theme_data.primaryColor}
+  final Color? primaryColor;
+
+  /// A darker version of the [primaryColor].
+  final Color? primaryColorDark;
+
+  /// A lighter version of the [primaryColor].
+  final Color? primaryColorLight;
+
+  /// A [MaterialColor] used to define the [ColorScheme].
+  ///
+  /// This option will eventually be phased out; consider using
+  /// [colorSchemeSeed] instead.
+  final MaterialColor? primarySwatch;
+
+  /// {@macro flutter.material.theme_data.scaffoldBackgroundColor}
+  final Color? scaffoldBackgroundColor;
+
+  /// {@macro flutter.material.theme_data.secondaryHeaderColor}
+  final Color? secondaryHeaderColor;
+
+  /// {@macro flutter.material.theme_data.shadowColor}
+  final Color? shadowColor;
+
+  /// {@macro flutter.material.theme_data.splashColor}
+  final Color? splashColor;
+
+  /// {@macro flutter.material.theme_data.unselectedWidgetColor}
+  final Color? unselectedWidgetColor;
+
+  // TYPOGRAPHY & ICONOGRAPHY
+
+  /// The font family to use when generating the [ThemeData.typography].
+  final String? fontFamily;
+
+  /// A list of backup font families to use if the main [fontFamily] is
+  /// unavailable on the current platform.
+  final List<String>? fontFamilyFallback;
+
+  /// The package to use when generating the [ThemeData.typography].
+  final String? package;
+
+  /// An icon theme that contrasts with the card and canvas colors.
+  final IconThemeData? iconTheme;
+
+  /// An icon theme that contrasts with the primary color.
+  final IconThemeData? primaryIconTheme;
+
+  /// A text theme that contrasts with the primary color.
+  final TextTheme? primaryTextTheme;
+
+  /// Text with a color that contrasts with the card and canvas colors.
+  final TextTheme? textTheme;
+
+  /// {@macro flutter.material.theme_data.typography}
+  final Typography? typography;
+
+  // COMPONENT THEMES
+
+  /// {@macro flutter.material.theme_data.actionIconTheme}
+  final ActionIconThemeData? actionIconTheme;
+
+  /// {@macro flutter.material.theme_data.appBarTheme}
+  final AppBarTheme? appBarTheme;
+
+  /// A theme for customizing the color of [Badge]s.
+  final BadgeThemeData? badgeTheme;
+
+  /// A theme for customizing the color and text style of a [MaterialBanner].
+  final MaterialBannerThemeData? bannerTheme;
+
+  /// A theme for customizing the shape, elevation, and color of a [BottomAppBar].
+  final BottomAppBarTheme? bottomAppBarTheme;
+
+  /// {@macro flutter.material.theme_data.bottomNavigationBarTheme}
+  final BottomNavigationBarThemeData? bottomNavigationBarTheme;
+
+  /// A theme for customizing the color, elevation, and shape of a bottom sheet.
+  final BottomSheetThemeData? bottomSheetTheme;
+
+  /// {@macro flutter.material.theme_data.buttonTheme}
+  final ButtonThemeData? buttonTheme;
+
+  /// {@macro flutter.material.theme_data.cardTheme}
+  final CardTheme? cardTheme;
+
+  /// A theme for customizing the appearance and layout of [Checkbox] widgets.
+  final CheckboxThemeData? checkboxTheme;
+
+  /// {@macro flutter.material.theme_data.chipTheme}
+  final ChipThemeData? chipTheme;
+
+  /// {@macro flutter.material.theme_data.dataTableTheme}
+  final DataTableThemeData? dataTableTheme;
+
+  /// {@macro flutter.material.theme_data.datePickerTheme}
+  final DatePickerThemeData? datePickerTheme;
+
+  /// A theme for customizing the shape of a dialog.
+  final DialogTheme? dialogTheme;
+
+  /// {@macro flutter.material.theme_data.dividerTheme}
+  final DividerThemeData? dividerTheme;
+
+  /// A theme for customizing the appearance and layout of [Drawer] widgets.
+  final DrawerThemeData? drawerTheme;
+
+  /// A theme for customizing the appearance and layout of [DropdownMenu] widgets.
+  final DropdownMenuThemeData? dropdownMenuTheme;
+
+  /// {@macro flutter.material.theme_data.elevatedButtonTheme}
+  final ElevatedButtonThemeData? elevatedButtonTheme;
+
+  /// A theme for customizing the visual properties of [ExpansionTile]s.
+  final ExpansionTileThemeData? expansionTileTheme;
+
+  /// {@macro flutter.material.theme_data.filledButtonTheme}
+  final FilledButtonThemeData? filledButtonTheme;
+
+  /// {@macro flutter.material.theme_data.floatingActionButtonTheme}
+  final FloatingActionButtonThemeData? floatingActionButtonTheme;
+
+  /// {@macro flutter.material.theme_data.iconButtonTheme}
+  final IconButtonThemeData? iconButtonTheme;
+
+  /// A theme for customizing the appearance of [ListTile] widgets.
+  final ListTileThemeData? listTileTheme;
+
+  /// {@macro flutter.material.theme_data.menuBarTheme}
+  final MenuBarThemeData? menuBarTheme;
+
+  /// {@macro flutter.material.theme_data.menuButtonTheme}
+  final MenuButtonThemeData? menuButtonTheme;
+
+  /// {@macro flutter.material.theme_data.menuTheme}
+  final MenuThemeData? menuTheme;
+
+  /// {@macro flutter.material.theme_data.navigationBarTheme}
+  final NavigationBarThemeData? navigationBarTheme;
+
+  /// {@macro flutter.material.theme_data.navigationDrawerTheme}
+  final NavigationDrawerThemeData? navigationDrawerTheme;
+
+  /// {@macro flutter.material.theme_data.navigationRailTheme}
+  final NavigationRailThemeData? navigationRailTheme;
+
+  /// {@macro flutter.material.theme_data.outlinedButtonTheme}
+  final OutlinedButtonThemeData? outlinedButtonTheme;
+
+  /// {@macro flutter.material.theme_data.popupMenuTheme}
+  final PopupMenuThemeData? popupMenuTheme;
+
+  /// A theme for customizing the appearance and layout of [ProgressIndicator] widgets.
+  final ProgressIndicatorThemeData? progressIndicatorTheme;
+
+  /// A theme for customizing the appearance and layout of [Radio] widgets.
+  final RadioThemeData? radioTheme;
+
+  /// A theme for customizing the appearance and layout of [SearchBar] widgets.
+  final SearchBarThemeData? searchBarTheme;
+
+  /// A theme for customizing the appearance and layout of search views created by [SearchAnchor] widgets.
+  final SearchViewThemeData? searchViewTheme;
+
+  /// A theme for customizing the appearance and layout of [SegmentedButton] widgets.
+  final SegmentedButtonThemeData? segmentedButtonTheme;
+
+  /// {@macro flutter.material.theme_data.sliderTheme}
+  final SliderThemeData? sliderTheme;
+
+  /// A theme for customizing colors, shape, elevation, and behavior of a [SnackBar].
+  final SnackBarThemeData? snackBarTheme;
+
+  /// A theme for customizing the appearance and layout of [Switch] widgets.
+  final SwitchThemeData? switchTheme;
+
+  /// A theme for customizing the size, shape, and color of the tab bar indicator.
+  final TabBarTheme? tabBarTheme;
+
+  /// {@macro flutter.material.theme_data.textButtonTheme}
+  final TextButtonThemeData? textButtonTheme;
+
+  /// A theme for customizing the appearance and layout of [TextField] widgets.
+  final TextSelectionThemeData? textSelectionTheme;
+
+  /// A theme for customizing the appearance and layout of time picker widgets.
+  final TimePickerThemeData? timePickerTheme;
+
+  /// Defines the default configuration of [ToggleButtons] widgets.
+  final ToggleButtonsThemeData? toggleButtonsTheme;
+
+  /// {@macro flutter.material.theme_data.tooltipTheme}
+  final TooltipThemeData? tooltipTheme;
+
+
+  // DEPRECATED (newest deprecations at the bottom)
+
+  /// A theme for customizing the appearance and layout of [ButtonBar] widgets.
+  @Deprecated(
+    'Use OverflowBar instead. '
+    'This feature was deprecated after v3.21.0-10.0.pre.',
+  )
+  final ButtonBarThemeData? buttonBarTheme;
+
+  /// Creates a copy of this configuration but with the given fields replaced
+  /// with the new values.
+  ///
+  /// The [brightness] value is applied to the [colorScheme].
+  ThemeConfiguration copyWith({
+    // For the sanity of the reader, make sure these properties are in the same
+    // order in every place that they are separated by section comments (e.g.
+    // GENERAL CONFIGURATION). Each section except for deprecations should be
+    // alphabetical by symbol name.
+
+    // GENERAL CONFIGURATION
+    Iterable<Adaptation<Object>>? adaptations,
+    bool? applyElevationOverlayColor,
+    NoDefaultCupertinoThemeData? cupertinoOverrideTheme,
+    Iterable<ThemeExtension<dynamic>>? extensions,
+    InputDecorationTheme? inputDecorationTheme,
+    MaterialTapTargetSize? materialTapTargetSize,
+    PageTransitionsTheme? pageTransitionsTheme,
+    TargetPlatform? platform,
+    ScrollbarThemeData? scrollbarTheme,
+    InteractiveInkFeatureFactory? splashFactory,
+    bool? useMaterial3,
+    VisualDensity? visualDensity,
+    // COLOR
+    ColorScheme? colorScheme,
+    Brightness? brightness,
+    Color? colorSchemeSeed,
+    // [colorScheme] is the preferred way to configure colors. The [Color] properties
+    // listed below (as well as primarySwatch) will gradually be phased out, see
+    // https://github.com/flutter/flutter/issues/91772.
+    Color? canvasColor,
+    Color? cardColor,
+    Color? dialogBackgroundColor,
+    Color? disabledColor,
+    Color? dividerColor,
+    Color? focusColor,
+    Color? highlightColor,
+    Color? hintColor,
+    Color? hoverColor,
+    Color? indicatorColor,
+    Color? primaryColor,
+    Color? primaryColorDark,
+    Color? primaryColorLight,
+    MaterialColor? primarySwatch,
+    Color? scaffoldBackgroundColor,
+    Color? secondaryHeaderColor,
+    Color? shadowColor,
+    Color? splashColor,
+    Color? unselectedWidgetColor,
+    // TYPOGRAPHY & ICONOGRAPHY
+    String? fontFamily,
+    List<String>? fontFamilyFallback,
+    String? package,
+    IconThemeData? iconTheme,
+    IconThemeData? primaryIconTheme,
+    TextTheme? primaryTextTheme,
+    TextTheme? textTheme,
+    Typography? typography,
+    // COMPONENT THEMES
+    ActionIconThemeData? actionIconTheme,
+    AppBarTheme? appBarTheme,
+    BadgeThemeData? badgeTheme,
+    MaterialBannerThemeData? bannerTheme,
+    BottomAppBarTheme? bottomAppBarTheme,
+    BottomNavigationBarThemeData? bottomNavigationBarTheme,
+    BottomSheetThemeData? bottomSheetTheme,
+    ButtonThemeData? buttonTheme,
+    CardTheme? cardTheme,
+    CheckboxThemeData? checkboxTheme,
+    ChipThemeData? chipTheme,
+    DataTableThemeData? dataTableTheme,
+    DatePickerThemeData? datePickerTheme,
+    DialogTheme? dialogTheme,
+    DividerThemeData? dividerTheme,
+    DrawerThemeData? drawerTheme,
+    DropdownMenuThemeData? dropdownMenuTheme,
+    ElevatedButtonThemeData? elevatedButtonTheme,
+    ExpansionTileThemeData? expansionTileTheme,
+    FilledButtonThemeData? filledButtonTheme,
+    FloatingActionButtonThemeData? floatingActionButtonTheme,
+    IconButtonThemeData? iconButtonTheme,
+    ListTileThemeData? listTileTheme,
+    MenuBarThemeData? menuBarTheme,
+    MenuButtonThemeData? menuButtonTheme,
+    MenuThemeData? menuTheme,
+    NavigationBarThemeData? navigationBarTheme,
+    NavigationDrawerThemeData? navigationDrawerTheme,
+    NavigationRailThemeData? navigationRailTheme,
+    OutlinedButtonThemeData? outlinedButtonTheme,
+    PopupMenuThemeData? popupMenuTheme,
+    ProgressIndicatorThemeData? progressIndicatorTheme,
+    RadioThemeData? radioTheme,
+    SearchBarThemeData? searchBarTheme,
+    SearchViewThemeData? searchViewTheme,
+    SegmentedButtonThemeData? segmentedButtonTheme,
+    SliderThemeData? sliderTheme,
+    SnackBarThemeData? snackBarTheme,
+    SwitchThemeData? switchTheme,
+    TabBarTheme? tabBarTheme,
+    TextButtonThemeData? textButtonTheme,
+    TextSelectionThemeData? textSelectionTheme,
+    TimePickerThemeData? timePickerTheme,
+    ToggleButtonsThemeData? toggleButtonsTheme,
+    TooltipThemeData? tooltipTheme,
+    // DEPRECATED (newest deprecations at the bottom)
+    @Deprecated(
+      'Use OverflowBar instead. '
+      'This feature was deprecated after v3.21.0-10.0.pre.',
+    )
+    ButtonBarThemeData? buttonBarTheme,
+  }) {
+    return ThemeConfiguration(
+      // For the sanity of the reader, make sure these properties are in the same
+      // order in every place that they are separated by section comments (e.g.
+      // GENERAL CONFIGURATION). Each section except for deprecations should be
+      // alphabetical by symbol name.
+
+      // GENERAL CONFIGURATION
+      adaptations: adaptations ?? this.adaptations,
+      applyElevationOverlayColor: applyElevationOverlayColor ?? this.applyElevationOverlayColor,
+      cupertinoOverrideTheme: cupertinoOverrideTheme ?? this.cupertinoOverrideTheme,
+      extensions: extensions ?? this.extensions,
+      inputDecorationTheme: inputDecorationTheme ?? this.inputDecorationTheme,
+      materialTapTargetSize: materialTapTargetSize ?? this.materialTapTargetSize,
+      pageTransitionsTheme: pageTransitionsTheme ?? this.pageTransitionsTheme,
+      platform: platform ?? this.platform,
+      scrollbarTheme: scrollbarTheme ?? this.scrollbarTheme,
+      splashFactory: splashFactory ?? this.splashFactory,
+      useMaterial3: useMaterial3 ?? this.useMaterial3,
+      visualDensity: visualDensity ?? this.visualDensity,
+      // COLOR
+      colorScheme: colorScheme ?? this.colorScheme,
+      brightness: brightness ?? this.brightness,
+      colorSchemeSeed: colorSchemeSeed ?? this.colorSchemeSeed,
+      // [colorScheme] is the preferred way to configure colors. The [Color] properties
+      // listed below (as well as primarySwatch) will gradually be phased out, see
+      // https://github.com/flutter/flutter/issues/91772.
+      canvasColor: canvasColor ?? this.canvasColor,
+      cardColor: cardColor ?? this.cardColor,
+      dialogBackgroundColor: dialogBackgroundColor ?? this.dialogBackgroundColor,
+      disabledColor: disabledColor ?? this.disabledColor,
+      dividerColor: dividerColor ?? this.dividerColor,
+      focusColor: focusColor ?? this.focusColor,
+      highlightColor: highlightColor ?? this.highlightColor,
+      hintColor: hintColor ?? this.hintColor,
+      hoverColor: hoverColor ?? this.hoverColor,
+      indicatorColor: indicatorColor ?? this.indicatorColor,
+      primaryColor: primaryColor ?? this.primaryColor,
+      primaryColorDark: primaryColorDark ?? this.primaryColorDark,
+      primaryColorLight: primaryColorLight ?? this.primaryColorLight,
+      primarySwatch: primarySwatch ?? this.primarySwatch,
+      scaffoldBackgroundColor: scaffoldBackgroundColor ?? this.scaffoldBackgroundColor,
+      secondaryHeaderColor: secondaryHeaderColor ?? this.secondaryHeaderColor,
+      shadowColor: shadowColor ?? this.shadowColor,
+      splashColor: splashColor ?? this.splashColor,
+      unselectedWidgetColor: unselectedWidgetColor ?? this.unselectedWidgetColor,
+      // TYPOGRAPHY & ICONOGRAPHY
+      fontFamily: fontFamily ?? this.fontFamily,
+      fontFamilyFallback: fontFamilyFallback ?? this.fontFamilyFallback,
+      package: package ?? this.package,
+      iconTheme: iconTheme ?? this.iconTheme,
+      primaryIconTheme: primaryIconTheme ?? this.primaryIconTheme,
+      primaryTextTheme: primaryTextTheme ?? this.primaryTextTheme,
+      textTheme: textTheme ?? this.textTheme,
+      typography: typography ?? this.typography,
+      // COMPONENT THEMES
+      actionIconTheme: actionIconTheme ?? this.actionIconTheme,
+      appBarTheme: appBarTheme ?? this.appBarTheme,
+      badgeTheme: badgeTheme ?? this.badgeTheme,
+      bannerTheme: bannerTheme ?? this.bannerTheme,
+      bottomAppBarTheme: bottomAppBarTheme ?? this.bottomAppBarTheme,
+      bottomNavigationBarTheme: bottomNavigationBarTheme ?? this.bottomNavigationBarTheme,
+      bottomSheetTheme: bottomSheetTheme ?? this.bottomSheetTheme,
+      buttonTheme: buttonTheme ?? this.buttonTheme,
+      cardTheme: cardTheme ?? this.cardTheme,
+      checkboxTheme: checkboxTheme ?? this.checkboxTheme,
+      chipTheme: chipTheme ?? this.chipTheme,
+      dataTableTheme: dataTableTheme ?? this.dataTableTheme,
+      datePickerTheme: datePickerTheme ?? this.datePickerTheme,
+      dialogTheme: dialogTheme ?? this.dialogTheme,
+      dividerTheme: dividerTheme ?? this.dividerTheme,
+      drawerTheme: drawerTheme ?? this.drawerTheme,
+      dropdownMenuTheme: dropdownMenuTheme ?? this.dropdownMenuTheme,
+      elevatedButtonTheme: elevatedButtonTheme ?? this.elevatedButtonTheme,
+      expansionTileTheme: expansionTileTheme ?? this.expansionTileTheme,
+      filledButtonTheme: filledButtonTheme ?? this.filledButtonTheme,
+      floatingActionButtonTheme: floatingActionButtonTheme ?? this.floatingActionButtonTheme,
+      iconButtonTheme: iconButtonTheme ?? this.iconButtonTheme,
+      listTileTheme: listTileTheme ?? this.listTileTheme,
+      menuBarTheme: menuBarTheme ?? this.menuBarTheme,
+      menuButtonTheme: menuButtonTheme ?? this.menuButtonTheme,
+      menuTheme: menuTheme ?? this.menuTheme,
+      navigationBarTheme: navigationBarTheme ?? this.navigationBarTheme,
+      navigationDrawerTheme: navigationDrawerTheme ?? this.navigationDrawerTheme,
+      navigationRailTheme: navigationRailTheme ?? this.navigationRailTheme,
+      outlinedButtonTheme: outlinedButtonTheme ?? this.outlinedButtonTheme,
+      popupMenuTheme: popupMenuTheme ?? this.popupMenuTheme,
+      progressIndicatorTheme: progressIndicatorTheme ?? this.progressIndicatorTheme,
+      radioTheme: radioTheme ?? this.radioTheme,
+      searchBarTheme: searchBarTheme ?? this.searchBarTheme,
+      searchViewTheme: searchViewTheme ?? this.searchViewTheme,
+      segmentedButtonTheme: segmentedButtonTheme ?? this.segmentedButtonTheme,
+      sliderTheme: sliderTheme ?? this.sliderTheme,
+      snackBarTheme: snackBarTheme ?? this.snackBarTheme,
+      switchTheme: switchTheme ?? this.switchTheme,
+      tabBarTheme: tabBarTheme ?? this.tabBarTheme,
+      textButtonTheme: textButtonTheme ?? this.textButtonTheme,
+      textSelectionTheme: textSelectionTheme ?? this.textSelectionTheme,
+      timePickerTheme: timePickerTheme ?? this.timePickerTheme,
+      toggleButtonsTheme: toggleButtonsTheme ?? this.toggleButtonsTheme,
+      tooltipTheme: tooltipTheme ?? this.tooltipTheme,
+      // DEPRECATED (newest deprecations at the bottom)
+      buttonBarTheme: buttonBarTheme ?? this.buttonBarTheme,
+    );
+  }
+
+  /// Creates a new configuration based on the properties of the [other] object.
+  ///
+  /// Used in [Theme.merge].
+  ThemeConfiguration merge(Object other) {
+    final ThemeConfiguration? otherConfig = switch (other) {
+      final ThemeData themeData => themeData.config,
+      ThemeConfiguration() => other,
+      _ => null,
+    };
+
+    if (otherConfig != null) {
+      return copyWith(
+        // For the sanity of the reader, make sure these properties are in the same
+        // order in every place that they are separated by section comments (e.g.
+        // GENERAL CONFIGURATION). Each section except for deprecations should be
+        // alphabetical by symbol name.
+
+        // GENERAL CONFIGURATION
+        adaptations: otherConfig.adaptations,
+        applyElevationOverlayColor: otherConfig.applyElevationOverlayColor,
+        cupertinoOverrideTheme: otherConfig.cupertinoOverrideTheme,
+        extensions: otherConfig.extensions,
+        inputDecorationTheme: otherConfig.inputDecorationTheme,
+        materialTapTargetSize: otherConfig.materialTapTargetSize,
+        pageTransitionsTheme: otherConfig.pageTransitionsTheme,
+        platform: otherConfig.platform,
+        scrollbarTheme: otherConfig.scrollbarTheme,
+        splashFactory: otherConfig.splashFactory,
+        useMaterial3: otherConfig.useMaterial3,
+        visualDensity: otherConfig.visualDensity,
+        // COLOR
+        colorScheme: otherConfig.colorScheme,
+        brightness: otherConfig.brightness,
+        colorSchemeSeed: otherConfig.colorSchemeSeed,
+        // [colorScheme] is the preferred way to configure colors. The [Color] properties
+        // listed below (as well as primarySwatch) will gradually be phased out, see
+        // https://github.com/flutter/flutter/issues/91772.
+        canvasColor: otherConfig.canvasColor,
+        cardColor: otherConfig.cardColor,
+        dialogBackgroundColor: otherConfig.dialogBackgroundColor,
+        disabledColor: otherConfig.disabledColor,
+        dividerColor: otherConfig.dividerColor,
+        focusColor: otherConfig.focusColor,
+        highlightColor: otherConfig.highlightColor,
+        hintColor: otherConfig.hintColor,
+        hoverColor: otherConfig.hoverColor,
+        indicatorColor: otherConfig.indicatorColor,
+        primaryColor: otherConfig.primaryColor,
+        primaryColorDark: otherConfig.primaryColorDark,
+        primaryColorLight: otherConfig.primaryColorLight,
+        primarySwatch: otherConfig.primarySwatch,
+        scaffoldBackgroundColor: otherConfig.scaffoldBackgroundColor,
+        secondaryHeaderColor: otherConfig.secondaryHeaderColor,
+        shadowColor: otherConfig.shadowColor,
+        splashColor: otherConfig.splashColor,
+        unselectedWidgetColor: otherConfig.unselectedWidgetColor,
+        // TYPOGRAPHY & ICONOGRAPHY
+        fontFamily: otherConfig.fontFamily,
+        fontFamilyFallback: otherConfig.fontFamilyFallback,
+        package: otherConfig.package,
+        iconTheme: otherConfig.iconTheme,
+        primaryIconTheme: otherConfig.primaryIconTheme,
+        primaryTextTheme: otherConfig.primaryTextTheme,
+        textTheme: otherConfig.textTheme,
+        typography: otherConfig.typography,
+        // COMPONENT THEMES
+        actionIconTheme: otherConfig.actionIconTheme,
+        appBarTheme: otherConfig.appBarTheme,
+        badgeTheme: otherConfig.badgeTheme,
+        bannerTheme: otherConfig.bannerTheme,
+        bottomAppBarTheme: otherConfig.bottomAppBarTheme,
+        bottomNavigationBarTheme: otherConfig.bottomNavigationBarTheme,
+        bottomSheetTheme: otherConfig.bottomSheetTheme,
+        buttonTheme: otherConfig.buttonTheme,
+        cardTheme: otherConfig.cardTheme,
+        checkboxTheme: otherConfig.checkboxTheme,
+        chipTheme: otherConfig.chipTheme,
+        dataTableTheme: otherConfig.dataTableTheme,
+        datePickerTheme: otherConfig.datePickerTheme,
+        dialogTheme: otherConfig.dialogTheme,
+        dividerTheme: otherConfig.dividerTheme,
+        drawerTheme: otherConfig.drawerTheme,
+        dropdownMenuTheme: otherConfig.dropdownMenuTheme,
+        elevatedButtonTheme: otherConfig.elevatedButtonTheme,
+        expansionTileTheme: otherConfig.expansionTileTheme,
+        filledButtonTheme: otherConfig.filledButtonTheme,
+        floatingActionButtonTheme: otherConfig.floatingActionButtonTheme,
+        iconButtonTheme: otherConfig.iconButtonTheme,
+        listTileTheme: otherConfig.listTileTheme,
+        menuBarTheme: otherConfig.menuBarTheme,
+        menuButtonTheme: otherConfig.menuButtonTheme,
+        menuTheme: otherConfig.menuTheme,
+        navigationBarTheme: otherConfig.navigationBarTheme,
+        navigationDrawerTheme: otherConfig.navigationDrawerTheme,
+        navigationRailTheme: otherConfig.navigationRailTheme,
+        outlinedButtonTheme: otherConfig.outlinedButtonTheme,
+        popupMenuTheme: otherConfig.popupMenuTheme,
+        progressIndicatorTheme: otherConfig.progressIndicatorTheme,
+        radioTheme: otherConfig.radioTheme,
+        searchBarTheme: otherConfig.searchBarTheme,
+        searchViewTheme: otherConfig.searchViewTheme,
+        segmentedButtonTheme: otherConfig.segmentedButtonTheme,
+        sliderTheme: otherConfig.sliderTheme,
+        snackBarTheme: otherConfig.snackBarTheme,
+        switchTheme: otherConfig.switchTheme,
+        tabBarTheme: otherConfig.tabBarTheme,
+        textButtonTheme: otherConfig.textButtonTheme,
+        textSelectionTheme: otherConfig.textSelectionTheme,
+        timePickerTheme: otherConfig.timePickerTheme,
+        toggleButtonsTheme: otherConfig.toggleButtonsTheme,
+        tooltipTheme: otherConfig.tooltipTheme,
+        // DEPRECATED (newest deprecations at the bottom)
+        buttonBarTheme: otherConfig.buttonBarTheme,
+      );
+    }
+
+    if (other is Brightness) {
+        return copyWith(
+          brightness: other,
+          colorScheme: switch ((colorScheme, colorScheme?.config)) {
+            (_, final ColorSchemeConfiguration current) => current.merge(other).applyDefaults(),
+            (final ColorScheme colorScheme, _) => colorScheme.copyWith(brightness: other),
+            _ => ColorScheme.fromSeed(brightness: other),
+          },
+        );
+    }
+
+    final ColorSchemeConfiguration? newSchemeConfig = switch (other) {
+      ColorSchemeConfiguration() => other,
+      DynamicSchemeVariant() => ColorSchemeConfiguration(dynamicSchemeVariant: other),
+      Color() => ColorSchemeConfiguration(seedColor: other),
+      final ColorScheme colorScheme => colorScheme.config,
+      _ => null,
+    };
+
+    if (newSchemeConfig != null) {
+      if (colorScheme?.config case final ColorSchemeConfiguration current) {
+        return copyWith(colorScheme: current.merge(newSchemeConfig).applyDefaults());
+      }
+      if (other is ColorScheme) {
+        return copyWith(colorScheme: other);
+      }
+      return copyWith(colorScheme: newSchemeConfig.applyDefaults());
+    }
+
+    ThemeConfiguration noMatch() {
+      assert(
+        false,
+        'The object $other (with type ${other.runtimeType}) '
+        'cannot be merged into a theme configuration.',
+      );
+      return this;
+    }
+
+    return switch (other) {
+      Iterable<Adaptation<Object>>() => copyWith(adaptations: other),
+      Adaptation<Object>() => copyWith(adaptations: <Adaptation<Object>>[...?adaptations, other]),
+      NoDefaultCupertinoThemeData() => copyWith(cupertinoOverrideTheme: other),
+      Iterable<ThemeExtension<dynamic>>() => copyWith(extensions: other),
+      InputDecorationTheme() => copyWith(inputDecorationTheme: other),
+      MaterialTapTargetSize() => copyWith(materialTapTargetSize: other),
+      PageTransitionsTheme() => copyWith(pageTransitionsTheme: other),
+      TargetPlatform() => copyWith(platform: other),
+      ScrollbarThemeData() => copyWith(scrollbarTheme: other),
+      InteractiveInkFeatureFactory() => copyWith(splashFactory: other),
+      VisualDensity() => copyWith(visualDensity: other),
+      Brightness() when colorScheme == null => copyWith(brightness: other),
+      Brightness() => copyWith(brightness: other, colorScheme: colorScheme!.copyWith(brightness: other)),
+      ColorScheme() => copyWith(colorScheme: other),
+      IconThemeData() => copyWith(iconTheme: other),
+      TextTheme() => copyWith(textTheme: (textTheme ?? const TextTheme()).merge(other)),
+      Typography() => copyWith(typography: other),
+      ActionIconThemeData() => copyWith(actionIconTheme: other),
+      AppBarTheme() => copyWith(appBarTheme: other),
+      BadgeThemeData() => copyWith(badgeTheme: other),
+      MaterialBannerThemeData() => copyWith(bannerTheme: other),
+      BottomAppBarTheme() => copyWith(bottomAppBarTheme: other),
+      BottomNavigationBarThemeData() => copyWith(bottomNavigationBarTheme: other),
+      BottomSheetThemeData() => copyWith(bottomSheetTheme: other),
+      ButtonThemeData() => copyWith(buttonTheme: other),
+      CardTheme() => copyWith(cardTheme: other),
+      CheckboxThemeData() => copyWith(checkboxTheme: other),
+      ChipThemeData() => copyWith(chipTheme: other),
+      DataTableThemeData() => copyWith(dataTableTheme: other),
+      DatePickerThemeData() => copyWith(datePickerTheme: other),
+      DialogTheme() => copyWith(dialogTheme: other),
+      DividerThemeData() => copyWith(dividerTheme: other),
+      DrawerThemeData() => copyWith(drawerTheme: other),
+      DropdownMenuThemeData() => copyWith(dropdownMenuTheme: other),
+      ElevatedButtonThemeData() => copyWith(elevatedButtonTheme: other),
+      ExpansionTileThemeData() => copyWith(expansionTileTheme: other),
+      FilledButtonThemeData() => copyWith(filledButtonTheme: other),
+      FloatingActionButtonThemeData() => copyWith(floatingActionButtonTheme: other),
+      IconButtonThemeData() => copyWith(iconButtonTheme: other),
+      ListTileThemeData() => copyWith(listTileTheme: other),
+      MenuBarThemeData() => copyWith(menuBarTheme: other),
+      MenuButtonThemeData() => copyWith(menuButtonTheme: other),
+      MenuThemeData() => copyWith(menuTheme: other),
+      NavigationBarThemeData() => copyWith(navigationBarTheme: other),
+      NavigationDrawerThemeData() => copyWith(navigationDrawerTheme: other),
+      NavigationRailThemeData() => copyWith(navigationRailTheme: other),
+      OutlinedButtonThemeData() => copyWith(outlinedButtonTheme: other),
+      PopupMenuThemeData() => copyWith(popupMenuTheme: other),
+      ProgressIndicatorThemeData() => copyWith(progressIndicatorTheme: other),
+      RadioThemeData() => copyWith(radioTheme: other),
+      SearchBarThemeData() => copyWith(searchBarTheme: other),
+      SearchViewThemeData() => copyWith(searchViewTheme: other),
+      SegmentedButtonThemeData() => copyWith(segmentedButtonTheme: other),
+      SliderThemeData() => copyWith(sliderTheme: other),
+      SnackBarThemeData() => copyWith(snackBarTheme: other),
+      SwitchThemeData() => copyWith(switchTheme: other),
+      TabBarTheme() => copyWith(tabBarTheme: other),
+      TextButtonThemeData() => copyWith(textButtonTheme: other),
+      TextSelectionThemeData() => copyWith(textSelectionTheme: other),
+      TimePickerThemeData() => copyWith(timePickerTheme: other),
+      ToggleButtonsThemeData() => copyWith(toggleButtonsTheme: other),
+      TooltipThemeData() => copyWith(tooltipTheme: other),
+      ButtonBarThemeData() => copyWith(buttonBarTheme: other),
+      _ => noMatch(),
+    };
+  }
+
+  /// Turns this configuration into a [ThemeData] object.
+  ///
+  /// Default values are applied to `null` members so they can be passed
+  /// into the [ThemeData.raw] constructor.
+  ThemeData applyDefaults() {
+    bool? applyElevationOverlayColor = this.applyElevationOverlayColor;
+    ColorScheme? colorScheme = this.colorScheme;
+    Color? canvasColor = this.canvasColor;
+    Color? cardColor = this.cardColor;
+    Color? dialogBackgroundColor = this.dialogBackgroundColor;
+    Color? disabledColor = this.disabledColor;
+    Color? dividerColor = this.dividerColor;
+    Color? focusColor = this.focusColor;
+    Color? highlightColor = this.highlightColor;
+    Color? hintColor = this.hintColor;
+    Color? hoverColor = this.hoverColor;
+    Color? indicatorColor = this.indicatorColor;
+    Color? primaryColor = this.primaryColor;
+    Color? primaryColorDark = this.primaryColorDark;
+    Color? primaryColorLight = this.primaryColorLight;
+    MaterialColor? primarySwatch = this.primarySwatch;
+    Color? scaffoldBackgroundColor = this.scaffoldBackgroundColor;
+    Color? secondaryHeaderColor = this.secondaryHeaderColor;
+    Color? shadowColor = this.shadowColor;
+    Color? splashColor = this.splashColor;
+    Color? unselectedWidgetColor = this.unselectedWidgetColor;
+    TextTheme? primaryTextTheme = this.primaryTextTheme;
+    TextTheme? textTheme = this.textTheme;
+    Typography? typography = this.typography;
+
+    // GENERAL CONFIGURATION
+    final TargetPlatform platform = this.platform ?? defaultTargetPlatform;
+    final MaterialTapTargetSize materialTapTargetSize = this.materialTapTargetSize
+      ?? MaterialTapTargetSize.platformDefault(platform);
+    final bool useMaterial3 = this.useMaterial3 ?? true;
+    late final bool useInkSparkle = platform == TargetPlatform.android && !kIsWeb;
+    late final InteractiveInkFeatureFactory defaultSplashFactory = useMaterial3
+      ? useInkSparkle ? InkSparkle.splashFactory : InkRipple.splashFactory
+      : InkSplash.splashFactory;
+
+    // COLOR
+    assert(
+      colorScheme?.brightness == null || brightness == null || colorScheme!.brightness == brightness,
+      'ThemeData.brightness does not match ColorScheme.brightness. '
+      'Either override ColorScheme.brightness or ThemeData.brightness to '
+      'match the other.'
+    );
+    assert(colorSchemeSeed == null || colorScheme == null);
+    assert(colorSchemeSeed == null || primarySwatch == null);
+    assert(colorSchemeSeed == null || primaryColor == null);
+    final Brightness effectiveBrightness = brightness ?? colorScheme?.brightness ?? Brightness.light;
+    final bool isDark = effectiveBrightness == Brightness.dark;
+    if (colorSchemeSeed != null || useMaterial3) {
+      if (colorSchemeSeed != null) {
+        colorScheme = ColorScheme.fromSeed(seedColor: colorSchemeSeed, brightness: effectiveBrightness);
+      }
+      colorScheme ??= isDark ? _colorSchemeDarkM3 : _colorSchemeLightM3;
+
+      // For surfaces that use primary color in light themes and surface color in dark
+      final Color primarySurfaceColor = isDark ? colorScheme.surface : colorScheme.primary;
+      final Color onPrimarySurfaceColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
+
+      // Default some of the color settings to values from the color scheme
+      primaryColor ??= primarySurfaceColor;
+      canvasColor ??= colorScheme.background;
+      scaffoldBackgroundColor ??= colorScheme.background;
+      cardColor ??= colorScheme.surface;
+      dividerColor ??= colorScheme.outline;
+      dialogBackgroundColor ??= colorScheme.background;
+      indicatorColor ??= onPrimarySurfaceColor;
+      applyElevationOverlayColor ??= brightness == Brightness.dark;
+    }
+    applyElevationOverlayColor ??= false;
+    primarySwatch ??= Colors.blue;
+    primaryColor ??= isDark ? Colors.grey[900]! : primarySwatch;
+    final Brightness estimatedPrimaryColorBrightness = ThemeData.estimateBrightnessForColor(primaryColor);
+    primaryColorLight ??= isDark ? Colors.grey[500]! : primarySwatch[100]!;
+    primaryColorDark ??= isDark ? Colors.black : primarySwatch[700]!;
+    final bool primaryIsDark = estimatedPrimaryColorBrightness == Brightness.dark;
+    focusColor ??= isDark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.12);
+    hoverColor ??= isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.04);
+    shadowColor ??= Colors.black;
+    canvasColor ??= isDark ? Colors.grey[850]! : Colors.grey[50]!;
+    scaffoldBackgroundColor ??= canvasColor;
+    cardColor ??= isDark ? Colors.grey[800]! : Colors.white;
+    dividerColor ??= isDark ? const Color(0x1FFFFFFF) : const Color(0x1F000000);
+    // Create a ColorScheme that is backwards compatible as possible
+    // with the existing default ThemeData color values.
+    colorScheme ??= ColorScheme.fromSwatch(
+      primarySwatch: primarySwatch,
+      accentColor: isDark ? Colors.tealAccent[200]! : primarySwatch[500]!,
+      cardColor: cardColor,
+      backgroundColor: isDark ? Colors.grey[700]! : primarySwatch[200]!,
+      errorColor: Colors.red[700],
+      brightness: effectiveBrightness,
+    );
+    unselectedWidgetColor ??= isDark ? Colors.white70 : Colors.black54;
+    // Spec doesn't specify a dark theme secondaryHeaderColor, this is a guess.
+    secondaryHeaderColor ??= isDark ? Colors.grey[700]! : primarySwatch[50]!;
+    dialogBackgroundColor ??= isDark ? Colors.grey[800]! : Colors.white;
+    indicatorColor ??= colorScheme.secondary == primaryColor ? Colors.white : colorScheme.secondary;
+    hintColor ??= isDark ? Colors.white60 : Colors.black.withOpacity(0.6);
+    // The default [buttonTheme] is here because it doesn't use the defaults for
+    // [disabledColor], [highlightColor], and [splashColor].
+    disabledColor ??= isDark ? Colors.white38 : Colors.black38;
+    highlightColor ??= isDark ? const Color(0x40CCCCCC) : const Color(0x66BCBCBC);
+    splashColor ??= isDark ? const Color(0x40CCCCCC) : const Color(0x66C8C8C8);
+
+    // TYPOGRAPHY & ICONOGRAPHY
+    typography ??= useMaterial3
+      ? Typography.material2021(platform: platform, colorScheme: colorScheme)
+      : Typography.material2014(platform: platform);
+    TextTheme defaultTextTheme = isDark ? typography.white : typography.black;
+    TextTheme defaultPrimaryTextTheme = primaryIsDark ? typography.white : typography.black;
+    if (fontFamily != null) {
+      defaultTextTheme = defaultTextTheme.apply(fontFamily: fontFamily);
+      defaultPrimaryTextTheme = defaultPrimaryTextTheme.apply(fontFamily: fontFamily);
+    }
+    if (fontFamilyFallback != null) {
+      defaultTextTheme = defaultTextTheme.apply(fontFamilyFallback: fontFamilyFallback);
+      defaultPrimaryTextTheme = defaultPrimaryTextTheme.apply(fontFamilyFallback: fontFamilyFallback);
+    }
+    if (package != null) {
+      defaultTextTheme = defaultTextTheme.apply(package: package);
+      defaultPrimaryTextTheme = defaultPrimaryTextTheme.apply(package: package);
+    }
+    textTheme = defaultTextTheme.merge(textTheme);
+    primaryTextTheme = defaultPrimaryTextTheme.merge(primaryTextTheme);
+
+    return ThemeData.raw(
+      // For the sanity of the reader, make sure these properties are in the same
+      // order in every place that they are separated by section comments (e.g.
+      // GENERAL CONFIGURATION). Each section except for deprecations should be
+      // alphabetical by symbol name.
+
+      // GENERAL CONFIGURATION
+      config: this,
+      adaptationMap: ThemeData._createAdaptationMap(adaptations ?? const <Adaptation<Object>>[]),
+      applyElevationOverlayColor: applyElevationOverlayColor,
+      cupertinoOverrideTheme: cupertinoOverrideTheme?.noDefault(),
+      extensions: ThemeData._themeExtensionIterableToMap(extensions ?? const <ThemeExtension<dynamic>>[]),
+      inputDecorationTheme: inputDecorationTheme ?? const InputDecorationTheme(),
+      materialTapTargetSize: materialTapTargetSize,
+      pageTransitionsTheme: pageTransitionsTheme ?? const PageTransitionsTheme(),
+      platform: platform,
+      scrollbarTheme: scrollbarTheme ?? const ScrollbarThemeData(),
+      splashFactory: splashFactory ?? defaultSplashFactory,
+      useMaterial3: useMaterial3,
+      visualDensity: visualDensity ?? VisualDensity.defaultDensityForPlatform(platform),
+      // COLOR
+      canvasColor: canvasColor,
+      cardColor: cardColor,
+      colorScheme: colorScheme,
+      dialogBackgroundColor: dialogBackgroundColor,
+      disabledColor: disabledColor,
+      dividerColor: dividerColor,
+      focusColor: focusColor,
+      highlightColor: highlightColor,
+      hintColor: hintColor,
+      hoverColor: hoverColor,
+      indicatorColor: indicatorColor,
+      primaryColor: primaryColor,
+      primaryColorDark: primaryColorDark,
+      primaryColorLight: primaryColorLight,
+      scaffoldBackgroundColor: scaffoldBackgroundColor,
+      secondaryHeaderColor: secondaryHeaderColor,
+      shadowColor: shadowColor,
+      splashColor: splashColor,
+      unselectedWidgetColor: unselectedWidgetColor,
+      // TYPOGRAPHY & ICONOGRAPHY
+      iconTheme: iconTheme ?? IconThemeData(color: isDark ? kDefaultIconLightColor : kDefaultIconDarkColor),
+      primaryTextTheme: primaryTextTheme,
+      textTheme: textTheme,
+      typography: typography,
+      primaryIconTheme: primaryIconTheme ?? IconThemeData(color: primaryIsDark ? Colors.white : Colors.black),
+      // COMPONENT THEMES
+      actionIconTheme: actionIconTheme,
+      appBarTheme: appBarTheme ?? const AppBarTheme(),
+      badgeTheme: badgeTheme ?? const BadgeThemeData(),
+      bannerTheme: bannerTheme ?? const MaterialBannerThemeData(),
+      bottomAppBarTheme: bottomAppBarTheme ?? const BottomAppBarTheme(),
+      bottomNavigationBarTheme: bottomNavigationBarTheme ?? const BottomNavigationBarThemeData(),
+      bottomSheetTheme: bottomSheetTheme ?? const BottomSheetThemeData(),
+      buttonTheme: buttonTheme ?? ButtonThemeData(
+        colorScheme: colorScheme,
+        buttonColor: isDark ? primarySwatch[600]! : Colors.grey[300]!,
+        disabledColor: disabledColor,
+        focusColor: focusColor,
+        hoverColor: hoverColor,
+        highlightColor: highlightColor,
+        splashColor: splashColor,
+        materialTapTargetSize: materialTapTargetSize,
+      ),
+      cardTheme: cardTheme ?? const CardTheme(),
+      checkboxTheme: checkboxTheme ?? const CheckboxThemeData(),
+      chipTheme: chipTheme ?? const ChipThemeData(),
+      dataTableTheme: dataTableTheme ?? const DataTableThemeData(),
+      datePickerTheme: datePickerTheme ?? const DatePickerThemeData(),
+      dialogTheme: dialogTheme ?? const DialogTheme(),
+      dividerTheme: dividerTheme ?? const DividerThemeData(),
+      drawerTheme: drawerTheme ?? const DrawerThemeData(),
+      dropdownMenuTheme: dropdownMenuTheme ?? const DropdownMenuThemeData(),
+      elevatedButtonTheme: elevatedButtonTheme ?? const ElevatedButtonThemeData(),
+      expansionTileTheme: expansionTileTheme ?? const ExpansionTileThemeData(),
+      filledButtonTheme: filledButtonTheme ?? const FilledButtonThemeData(),
+      floatingActionButtonTheme: floatingActionButtonTheme ?? const FloatingActionButtonThemeData(),
+      iconButtonTheme: iconButtonTheme ?? const IconButtonThemeData(),
+      listTileTheme: listTileTheme ?? const ListTileThemeData(),
+      menuBarTheme: menuBarTheme ?? const MenuBarThemeData(),
+      menuButtonTheme: menuButtonTheme ?? const MenuButtonThemeData(),
+      menuTheme: menuTheme ?? const MenuThemeData(),
+      navigationBarTheme: navigationBarTheme ?? const NavigationBarThemeData(),
+      navigationDrawerTheme: navigationDrawerTheme ?? const NavigationDrawerThemeData(),
+      navigationRailTheme: navigationRailTheme ?? const NavigationRailThemeData(),
+      outlinedButtonTheme: outlinedButtonTheme ?? const OutlinedButtonThemeData(),
+      popupMenuTheme: popupMenuTheme ?? const PopupMenuThemeData(),
+      progressIndicatorTheme: progressIndicatorTheme ?? const ProgressIndicatorThemeData(),
+      radioTheme: radioTheme ?? const RadioThemeData(),
+      searchBarTheme: searchBarTheme ?? const SearchBarThemeData(),
+      searchViewTheme: searchViewTheme ?? const SearchViewThemeData(),
+      segmentedButtonTheme: segmentedButtonTheme ?? const SegmentedButtonThemeData(),
+      sliderTheme: sliderTheme ?? const SliderThemeData(),
+      snackBarTheme: snackBarTheme ?? const SnackBarThemeData(),
+      switchTheme: switchTheme ?? const SwitchThemeData(),
+      tabBarTheme: tabBarTheme ?? const TabBarTheme(),
+      textButtonTheme: textButtonTheme ?? const TextButtonThemeData(),
+      textSelectionTheme: textSelectionTheme ?? const TextSelectionThemeData(),
+      timePickerTheme: timePickerTheme ?? const TimePickerThemeData(),
+      toggleButtonsTheme: toggleButtonsTheme ?? const ToggleButtonsThemeData(),
+      tooltipTheme: tooltipTheme ?? const TooltipThemeData(),
+      // DEPRECATED (newest deprecations at the bottom)
+      buttonBarTheme: buttonBarTheme ?? const ButtonBarThemeData(),
+    );
+  }
 }
 
 /// Defines the configuration of the overall visual [Theme] for a [MaterialApp]
@@ -206,7 +1293,6 @@ enum MaterialTapTargetSize {
 ///
 /// See <https://material.io/design/color/> for
 /// more discussion on how to pick the right colors.
-
 @immutable
 class ThemeData with Diagnosticable {
   /// Create a [ThemeData] that's used to configure a [Theme].
@@ -355,189 +1441,11 @@ class ThemeData with Diagnosticable {
     )
     ButtonBarThemeData? buttonBarTheme,
   }) {
-    // GENERAL CONFIGURATION
-    cupertinoOverrideTheme = cupertinoOverrideTheme?.noDefault();
-    extensions ??= <ThemeExtension<dynamic>>[];
-    adaptations ??= <Adaptation<Object>>[];
-    inputDecorationTheme ??= const InputDecorationTheme();
-    platform ??= defaultTargetPlatform;
-    switch (platform) {
-      case TargetPlatform.android:
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.iOS:
-        materialTapTargetSize ??= MaterialTapTargetSize.padded;
-      case TargetPlatform.linux:
-      case TargetPlatform.macOS:
-      case TargetPlatform.windows:
-         materialTapTargetSize ??= MaterialTapTargetSize.shrinkWrap;
-    }
-    pageTransitionsTheme ??= const PageTransitionsTheme();
-    scrollbarTheme ??= const ScrollbarThemeData();
-    visualDensity ??= VisualDensity.defaultDensityForPlatform(platform);
-    useMaterial3 ??= true;
-    final bool useInkSparkle = platform == TargetPlatform.android && !kIsWeb;
-    splashFactory ??= useMaterial3
-      ? useInkSparkle ? InkSparkle.splashFactory : InkRipple.splashFactory
-      : InkSplash.splashFactory;
-
-    // COLOR
-    assert(
-      colorScheme?.brightness == null || brightness == null || colorScheme!.brightness == brightness,
-      'ThemeData.brightness does not match ColorScheme.brightness. '
-      'Either override ColorScheme.brightness or ThemeData.brightness to '
-      'match the other.'
-    );
-    assert(colorSchemeSeed == null || colorScheme == null);
-    assert(colorSchemeSeed == null || primarySwatch == null);
-    assert(colorSchemeSeed == null || primaryColor == null);
-    final Brightness effectiveBrightness = brightness ?? colorScheme?.brightness ?? Brightness.light;
-    final bool isDark = effectiveBrightness == Brightness.dark;
-    if (colorSchemeSeed != null || useMaterial3) {
-      if (colorSchemeSeed != null) {
-        colorScheme = ColorScheme.fromSeed(seedColor: colorSchemeSeed, brightness: effectiveBrightness);
-      }
-      colorScheme ??= isDark ? _colorSchemeDarkM3 : _colorSchemeLightM3;
-
-      // For surfaces that use primary color in light themes and surface color in dark
-      final Color primarySurfaceColor = isDark ? colorScheme.surface : colorScheme.primary;
-      final Color onPrimarySurfaceColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
-
-      // Default some of the color settings to values from the color scheme
-      primaryColor ??= primarySurfaceColor;
-      canvasColor ??= colorScheme.background;
-      scaffoldBackgroundColor ??= colorScheme.background;
-      cardColor ??= colorScheme.surface;
-      dividerColor ??= colorScheme.outline;
-      dialogBackgroundColor ??= colorScheme.background;
-      indicatorColor ??= onPrimarySurfaceColor;
-      applyElevationOverlayColor ??= brightness == Brightness.dark;
-    }
-    applyElevationOverlayColor ??= false;
-    primarySwatch ??= Colors.blue;
-    primaryColor ??= isDark ? Colors.grey[900]! : primarySwatch;
-    final Brightness estimatedPrimaryColorBrightness = estimateBrightnessForColor(primaryColor);
-    primaryColorLight ??= isDark ? Colors.grey[500]! : primarySwatch[100]!;
-    primaryColorDark ??= isDark ? Colors.black : primarySwatch[700]!;
-    final bool primaryIsDark = estimatedPrimaryColorBrightness == Brightness.dark;
-    focusColor ??= isDark ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.12);
-    hoverColor ??= isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.04);
-    shadowColor ??= Colors.black;
-    canvasColor ??= isDark ? Colors.grey[850]! : Colors.grey[50]!;
-    scaffoldBackgroundColor ??= canvasColor;
-    cardColor ??= isDark ? Colors.grey[800]! : Colors.white;
-    dividerColor ??= isDark ? const Color(0x1FFFFFFF) : const Color(0x1F000000);
-    // Create a ColorScheme that is backwards compatible as possible
-    // with the existing default ThemeData color values.
-    colorScheme ??= ColorScheme.fromSwatch(
-      primarySwatch: primarySwatch,
-      accentColor: isDark ? Colors.tealAccent[200]! : primarySwatch[500]!,
-      cardColor: cardColor,
-      backgroundColor: isDark ? Colors.grey[700]! : primarySwatch[200]!,
-      errorColor: Colors.red[700],
-      brightness: effectiveBrightness,
-    );
-    unselectedWidgetColor ??= isDark ? Colors.white70 : Colors.black54;
-    // Spec doesn't specify a dark theme secondaryHeaderColor, this is a guess.
-    secondaryHeaderColor ??= isDark ? Colors.grey[700]! : primarySwatch[50]!;
-    dialogBackgroundColor ??= isDark ? Colors.grey[800]! : Colors.white;
-    indicatorColor ??= colorScheme.secondary == primaryColor ? Colors.white : colorScheme.secondary;
-    hintColor ??= isDark ? Colors.white60 : Colors.black.withOpacity(0.6);
-    // The default [buttonTheme] is here because it doesn't use the defaults for
-    // [disabledColor], [highlightColor], and [splashColor].
-    buttonTheme ??= ButtonThemeData(
-      colorScheme: colorScheme,
-      buttonColor: isDark ? primarySwatch[600]! : Colors.grey[300]!,
-      disabledColor: disabledColor,
-      focusColor: focusColor,
-      hoverColor: hoverColor,
-      highlightColor: highlightColor,
-      splashColor: splashColor,
-      materialTapTargetSize: materialTapTargetSize,
-    );
-    disabledColor ??= isDark ? Colors.white38 : Colors.black38;
-    highlightColor ??= isDark ? const Color(0x40CCCCCC) : const Color(0x66BCBCBC);
-    splashColor ??= isDark ? const Color(0x40CCCCCC) : const Color(0x66C8C8C8);
-
-    // TYPOGRAPHY & ICONOGRAPHY
-    typography ??= useMaterial3
-      ? Typography.material2021(platform: platform, colorScheme: colorScheme)
-      : Typography.material2014(platform: platform);
-    TextTheme defaultTextTheme = isDark ? typography.white : typography.black;
-    TextTheme defaultPrimaryTextTheme = primaryIsDark ? typography.white : typography.black;
-    if (fontFamily != null) {
-      defaultTextTheme = defaultTextTheme.apply(fontFamily: fontFamily);
-      defaultPrimaryTextTheme = defaultPrimaryTextTheme.apply(fontFamily: fontFamily);
-    }
-    if (fontFamilyFallback != null) {
-      defaultTextTheme = defaultTextTheme.apply(fontFamilyFallback: fontFamilyFallback);
-      defaultPrimaryTextTheme = defaultPrimaryTextTheme.apply(fontFamilyFallback: fontFamilyFallback);
-    }
-    if (package != null) {
-      defaultTextTheme = defaultTextTheme.apply(package: package);
-      defaultPrimaryTextTheme = defaultPrimaryTextTheme.apply(package: package);
-    }
-    textTheme = defaultTextTheme.merge(textTheme);
-    primaryTextTheme = defaultPrimaryTextTheme.merge(primaryTextTheme);
-    iconTheme ??= isDark ? IconThemeData(color: kDefaultIconLightColor) : IconThemeData(color: kDefaultIconDarkColor);
-    primaryIconTheme ??= primaryIsDark ? const IconThemeData(color: Colors.white) : const IconThemeData(color: Colors.black);
-
-    // COMPONENT THEMES
-    appBarTheme ??= const AppBarTheme();
-    badgeTheme ??= const BadgeThemeData();
-    bannerTheme ??= const MaterialBannerThemeData();
-    bottomAppBarTheme ??= const BottomAppBarTheme();
-    bottomNavigationBarTheme ??= const BottomNavigationBarThemeData();
-    bottomSheetTheme ??= const BottomSheetThemeData();
-    cardTheme ??= const CardTheme();
-    checkboxTheme ??= const CheckboxThemeData();
-    chipTheme ??= const ChipThemeData();
-    dataTableTheme ??= const DataTableThemeData();
-    datePickerTheme ??= const DatePickerThemeData();
-    dialogTheme ??= const DialogTheme();
-    dividerTheme ??= const DividerThemeData();
-    drawerTheme ??= const DrawerThemeData();
-    dropdownMenuTheme ??= const DropdownMenuThemeData();
-    elevatedButtonTheme ??= const ElevatedButtonThemeData();
-    expansionTileTheme ??= const ExpansionTileThemeData();
-    filledButtonTheme ??= const FilledButtonThemeData();
-    floatingActionButtonTheme ??= const FloatingActionButtonThemeData();
-    iconButtonTheme ??= const IconButtonThemeData();
-    listTileTheme ??= const ListTileThemeData();
-    menuBarTheme ??= const MenuBarThemeData();
-    menuButtonTheme ??= const MenuButtonThemeData();
-    menuTheme ??= const MenuThemeData();
-    navigationBarTheme ??= const NavigationBarThemeData();
-    navigationDrawerTheme ??= const NavigationDrawerThemeData();
-    navigationRailTheme ??= const NavigationRailThemeData();
-    outlinedButtonTheme ??= const OutlinedButtonThemeData();
-    popupMenuTheme ??= const PopupMenuThemeData();
-    progressIndicatorTheme ??= const ProgressIndicatorThemeData();
-    radioTheme ??= const RadioThemeData();
-    searchBarTheme ??= const SearchBarThemeData();
-    searchViewTheme ??= const SearchViewThemeData();
-    segmentedButtonTheme ??= const SegmentedButtonThemeData();
-    sliderTheme ??= const SliderThemeData();
-    snackBarTheme ??= const SnackBarThemeData();
-    switchTheme ??= const SwitchThemeData();
-    tabBarTheme ??= const TabBarTheme();
-    textButtonTheme ??= const TextButtonThemeData();
-    textSelectionTheme ??= const TextSelectionThemeData();
-    timePickerTheme ??= const TimePickerThemeData();
-    toggleButtonsTheme ??= const ToggleButtonsThemeData();
-    tooltipTheme ??= const TooltipThemeData();
-    // DEPRECATED (newest deprecations at the bottom)
-    buttonBarTheme ??= const ButtonBarThemeData();
-    return ThemeData.raw(
-      // For the sanity of the reader, make sure these properties are in the same
-      // order in every place that they are separated by section comments (e.g.
-      // GENERAL CONFIGURATION). Each section except for deprecations should be
-      // alphabetical by symbol name.
-
-      // GENERAL CONFIGURATION
-      adaptationMap: _createAdaptationMap(adaptations),
+    final ThemeConfiguration config = ThemeConfiguration(
+      adaptations: adaptations,
       applyElevationOverlayColor: applyElevationOverlayColor,
       cupertinoOverrideTheme: cupertinoOverrideTheme,
-      extensions: _themeExtensionIterableToMap(extensions),
+      extensions: extensions,
       inputDecorationTheme: inputDecorationTheme,
       materialTapTargetSize: materialTapTargetSize,
       pageTransitionsTheme: pageTransitionsTheme,
@@ -547,9 +1455,14 @@ class ThemeData with Diagnosticable {
       useMaterial3: useMaterial3,
       visualDensity: visualDensity,
       // COLOR
+      colorScheme: colorScheme,
+      brightness: brightness,
+      colorSchemeSeed: colorSchemeSeed,
+      // [colorScheme] is the preferred way to configure colors. The [Color] properties
+      // listed below (as well as primarySwatch) will gradually be phased out, see
+      // https://github.com/flutter/flutter/issues/91772.
       canvasColor: canvasColor,
       cardColor: cardColor,
-      colorScheme: colorScheme,
       dialogBackgroundColor: dialogBackgroundColor,
       disabledColor: disabledColor,
       dividerColor: dividerColor,
@@ -561,17 +1474,21 @@ class ThemeData with Diagnosticable {
       primaryColor: primaryColor,
       primaryColorDark: primaryColorDark,
       primaryColorLight: primaryColorLight,
+      primarySwatch: primarySwatch,
       scaffoldBackgroundColor: scaffoldBackgroundColor,
       secondaryHeaderColor: secondaryHeaderColor,
       shadowColor: shadowColor,
       splashColor: splashColor,
       unselectedWidgetColor: unselectedWidgetColor,
       // TYPOGRAPHY & ICONOGRAPHY
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+      package: package,
       iconTheme: iconTheme,
+      primaryIconTheme: primaryIconTheme,
       primaryTextTheme: primaryTextTheme,
       textTheme: textTheme,
       typography: typography,
-      primaryIconTheme: primaryIconTheme,
       // COMPONENT THEMES
       actionIconTheme: actionIconTheme,
       appBarTheme: appBarTheme,
@@ -621,6 +1538,7 @@ class ThemeData with Diagnosticable {
       // DEPRECATED (newest deprecations at the bottom)
       buttonBarTheme: buttonBarTheme,
     );
+    return config.applyDefaults();
   }
 
   /// Create a [ThemeData] given a set of exact values. Most values must be
@@ -637,6 +1555,7 @@ class ThemeData with Diagnosticable {
     // alphabetical by symbol name.
 
     // GENERAL CONFIGURATION
+    this.config = const ThemeConfiguration(),
     required this.adaptationMap,
     required this.applyElevationOverlayColor,
     required this.cupertinoOverrideTheme,
@@ -823,18 +1742,22 @@ class ThemeData with Diagnosticable {
   Adaptation<T>? getAdaptation<T>() => adaptationMap[T] as Adaptation<T>?;
 
   static Map<Type, Adaptation<Object>> _createAdaptationMap(Iterable<Adaptation<Object>> adaptations) {
-    final Map<Type, Adaptation<Object>> adaptationMap = <Type, Adaptation<Object>>{
+    return <Type, Adaptation<Object>>{
       for (final Adaptation<Object> adaptation in adaptations)
         adaptation.type: adaptation
     };
-    return adaptationMap;
   }
 
+  /// {@macro flutter.material.theme_data.ThemeConfiguration}
+  final ThemeConfiguration config;
+
+  /// {@template flutter.material.theme_data.brightness}
   /// The overall theme brightness.
   ///
   /// The default [TextStyle] color for the [textTheme] is black if the
   /// theme is constructed with [Brightness.light] and white if the
   /// theme is constructed with [Brightness.dark].
+  /// {@endtemplate}
   Brightness get brightness => colorScheme.brightness;
 
   // For the sanity of the reader, make sure these properties are in the same
@@ -844,6 +1767,7 @@ class ThemeData with Diagnosticable {
 
   // GENERAL CONFIGURATION
 
+  /// {@template flutter.material.theme_data.applyElevationOverlayColor}
   /// Apply a semi-transparent overlay color on Material surfaces to indicate
   /// elevation for dark themes.
   ///
@@ -879,8 +1803,10 @@ class ThemeData with Diagnosticable {
   ///    the overlay color to its surface color.
   ///  * <https://material.io/design/color/dark-theme.html>, which specifies how
   ///    the overlay should be applied.
+  /// {@endtemplate}
   final bool applyElevationOverlayColor;
 
+  /// {@template flutter.material.theme_data.cupertinoOverrideTheme}
   /// Components of the [CupertinoThemeData] to override from the Material
   /// [ThemeData] adaptation.
   ///
@@ -891,14 +1817,17 @@ class ThemeData with Diagnosticable {
   ///
   /// This cascading effect for individual attributes of the [CupertinoThemeData]
   /// can be overridden using attributes of this [cupertinoOverrideTheme].
+  /// {@endtemplate}
   final NoDefaultCupertinoThemeData? cupertinoOverrideTheme;
 
+  /// {@template flutter.material.theme_data.extensions}
   /// Arbitrary additions to this theme.
   ///
   /// To define extensions, pass an [Iterable] containing one or more [ThemeExtension]
   /// subclasses to [ThemeData.new] or [copyWith].
   ///
   /// To obtain an extension, use [extension].
+  /// {@endtemplate}
   ///
   /// {@tool dartpad}
   /// This sample shows how to create and use a subclass of [ThemeExtension] that
@@ -925,26 +1854,33 @@ class ThemeData with Diagnosticable {
   /// To obtain an adaptation, use [getAdaptation].
   final Map<Type, Adaptation<Object>> adaptationMap;
 
+  /// {@template flutter.material.theme_data.inputDecorationTheme}
   /// The default [InputDecoration] values for [InputDecorator], [TextField],
   /// and [TextFormField] are based on this theme.
   ///
   /// See [InputDecoration.applyDefaults].
+  /// {@endtemplate}
   final InputDecorationTheme inputDecorationTheme;
 
+  /// {@template flutter.material.theme_data.materialTapTargetSize}
   /// Configures the hit test size of certain Material widgets.
   ///
   /// Defaults to a [platform]-appropriate size: [MaterialTapTargetSize.padded]
   /// on mobile platforms, [MaterialTapTargetSize.shrinkWrap] on desktop
   /// platforms.
+  /// {@endtemplate}
   final MaterialTapTargetSize materialTapTargetSize;
 
+  /// {@template flutter.material.theme_data.pageTransitionsTheme}
   /// Default [MaterialPageRoute] transitions per [TargetPlatform].
   ///
   /// [MaterialPageRoute.buildTransitions] delegates to a [platform] specific
   /// [PageTransitionsBuilder]. If a matching builder is not found, a builder
   /// whose platform is null is used.
+  /// {@endtemplate}
   final PageTransitionsTheme pageTransitionsTheme;
 
+  /// {@template flutter.material.theme_data.platform}
   /// The platform the material widgets should adapt to target.
   ///
   /// Defaults to the current platform, as exposed by [defaultTargetPlatform].
@@ -970,11 +1906,13 @@ class ThemeData with Diagnosticable {
   /// [debugDefaultTargetPlatformOverride].
   ///
   /// Determines the defaults for [typography] and [materialTapTargetSize].
+  /// {@endtemplate}
   final TargetPlatform platform;
 
   /// A theme for customizing the colors, thickness, and shape of [Scrollbar]s.
   final ScrollbarThemeData scrollbarTheme;
 
+  /// {@template flutter.material.theme_data.splashFactory}
   /// Defines the appearance of ink splashes produces by [InkWell]
   /// and [InkResponse].
   ///
@@ -985,8 +1923,10 @@ class ThemeData with Diagnosticable {
   ///    more aggressively than the default.
   ///  * [InkSparkle.splashFactory], which defines a more aggressive and organic
   ///    splash with sparkle effects.
+  /// {@endtemplate}
   final InteractiveInkFeatureFactory splashFactory;
 
+  /// {@template flutter.material.theme_data.useMaterial3}
   /// A temporary flag that can be used to opt-out of Material 3 features.
   ///
   /// This flag is _true_ by default. If false, then components will
@@ -1070,6 +2010,7 @@ class ThemeData with Diagnosticable {
   /// See also:
   ///
   ///   * [Material 3 specification](https://m3.material.io/).
+  /// {@endtemplate}
   final bool useMaterial3;
 
   /// The density value for specifying the compactness of various UI components.
@@ -1126,42 +2067,54 @@ class ThemeData with Diagnosticable {
   /// The background color of [Dialog] elements.
   final Color dialogBackgroundColor;
 
+  /// {@template flutter.material.theme_data.disabledColor}
   /// The color used for widgets that are inoperative, regardless of
   /// their state. For example, a disabled checkbox (which may be
   /// checked or unchecked).
+  /// {@endtemplate}
   final Color disabledColor;
 
+  /// {@template flutter.material.theme_data.dividerColor}
   /// The color of [Divider]s and [PopupMenuDivider]s, also used
   /// between [ListTile]s, between rows in [DataTable]s, and so forth.
   ///
   /// To create an appropriate [BorderSide] that uses this color, consider
   /// [Divider.createBorderSide].
+  /// {@endtemplate}
   final Color dividerColor;
 
   /// The focus color used indicate that a component has the input focus.
   final Color focusColor;
 
+  /// {@template flutter.material.theme_data.highlightColor}
   /// The highlight color used during ink splash animations or to
   /// indicate an item in a menu is selected.
+  /// {@endtemplate}
   final Color highlightColor;
 
+  /// {@template flutter.material.theme_data.hintColor}
   /// The color to use for hint text or placeholder text, e.g. in
   /// [TextField] fields.
+  /// {@endtemplate}
   final Color hintColor;
 
+  /// {@template flutter.material.theme_data.hoverColor}
   /// The hover color used to indicate when a pointer is hovering over a
   /// component.
+  /// {@endtemplate}
   final Color hoverColor;
 
   /// The color of the selected tab indicator in a tab bar.
   final Color indicatorColor;
 
+  /// {@template flutter.material.theme_data.primaryColor}
   /// The background color for major parts of the app (toolbars, tab bars, etc)
   ///
   /// The theme's [colorScheme] property contains [ColorScheme.primary], as
   /// well as a color that contrasts well with the primary color called
   /// [ColorScheme.onPrimary]. It might be simpler to just configure an app's
   /// visuals in terms of the theme's [colorScheme].
+  /// {@endtemplate}
   final Color primaryColor;
 
   /// A darker version of the [primaryColor].
@@ -1170,16 +2123,21 @@ class ThemeData with Diagnosticable {
   /// A lighter version of the [primaryColor].
   final Color primaryColorLight;
 
+  /// {@template flutter.material.theme_data.scaffoldBackgroundColor}
   /// The default color of the [Material] that underlies the [Scaffold]. The
   /// background color for a typical material app or a page within the app.
+  /// {@endtemplate}
   final Color scaffoldBackgroundColor;
 
+  /// {@template flutter.material.theme_data.secondaryHeaderColor}
   /// The color of the header of a [PaginatedDataTable] when there are selected rows.
   // According to the spec for data tables:
   // https://material.io/archive/guidelines/components/data-tables.html#data-tables-tables-within-cards
   // ...this should be the "50-value of secondary app color".
+  /// {@endtemplate}
   final Color secondaryHeaderColor;
 
+  /// {@template flutter.material.theme_data.shadowColor}
   /// The color that the [Material] widget uses to draw elevation shadows.
   ///
   /// Defaults to fully opaque black.
@@ -1189,16 +2147,21 @@ class ThemeData with Diagnosticable {
   /// As the elevation of the component increases, the overlay increases in
   /// opacity. The [applyElevationOverlayColor] property turns the elevation
   /// overlay on or off for dark themes.
+  /// {@endtemplate}
   final Color shadowColor;
 
+  /// {@template flutter.material.theme_data.splashColor}
   /// The color of ink splashes.
   ///
   /// See also:
   ///  * [splashFactory], which defines the appearance of the splash.
+  /// {@endtemplate}
   final Color splashColor;
 
+  /// {@template flutter.material.theme_data.unselectedWidgetColor}
   /// The color used for widgets in their inactive (but enabled)
   /// state. For example, an unchecked checkbox. See also [disabledColor].
+  /// {@endtemplate}
   final Color unselectedWidgetColor;
 
   // TYPOGRAPHY & ICONOGRAPHY
@@ -1215,19 +2178,25 @@ class ThemeData with Diagnosticable {
   /// Text with a color that contrasts with the card and canvas colors.
   final TextTheme textTheme;
 
+  /// {@template flutter.material.theme_data.typography}
   /// The color and geometry [TextTheme] values used to configure [textTheme].
   ///
   /// Defaults to a [platform]-appropriate typography.
+  /// {@endtemplate}
   final Typography typography;
 
   // COMPONENT THEMES
 
+  /// {@template flutter.material.theme_data.actionIconTheme}
   /// A theme for customizing icons of [BackButtonIcon], [CloseButtonIcon],
   /// [DrawerButtonIcon], or [EndDrawerButtonIcon].
+  /// {@endtemplate}
   final ActionIconThemeData? actionIconTheme;
 
+  /// {@template flutter.material.theme_data.appBarTheme}
   /// A theme for customizing the color, elevation, brightness, iconTheme and
   /// textTheme of [AppBar]s.
+  /// {@endtemplate}
   final AppBarTheme appBarTheme;
 
   /// A theme for customizing the color of [Badge]s.
@@ -1239,43 +2208,57 @@ class ThemeData with Diagnosticable {
   /// A theme for customizing the shape, elevation, and color of a [BottomAppBar].
   final BottomAppBarTheme bottomAppBarTheme;
 
+  /// {@template flutter.material.theme_data.bottomNavigationBarTheme}
   /// A theme for customizing the appearance and layout of [BottomNavigationBar]
   /// widgets.
+  /// {@endtemplate}
   final BottomNavigationBarThemeData bottomNavigationBarTheme;
 
   /// A theme for customizing the color, elevation, and shape of a bottom sheet.
   final BottomSheetThemeData bottomSheetTheme;
 
+  /// {@template flutter.material.theme_data.buttonTheme}
   /// Defines the default configuration of button widgets, like [DropdownButton]
   /// and [ButtonBar].
+  /// {@endtemplate}
   final ButtonThemeData buttonTheme;
 
+  /// {@template flutter.material.theme_data.cardTheme}
   /// The colors and styles used to render [Card].
   ///
   /// This is the value returned from [CardTheme.of].
+  /// {@endtemplate}
   final CardTheme cardTheme;
 
   /// A theme for customizing the appearance and layout of [Checkbox] widgets.
   final CheckboxThemeData checkboxTheme;
 
+  /// {@template flutter.material.theme_data.chipTheme}
   /// The colors and styles used to render [Chip]s.
   ///
   /// This is the value returned from [ChipTheme.of].
+  /// {@endtemplate}
   final ChipThemeData chipTheme;
 
+  /// {@template flutter.material.theme_data.dataTableTheme}
   /// A theme for customizing the appearance and layout of [DataTable]
   /// widgets.
+  /// {@endtemplate}
   final DataTableThemeData dataTableTheme;
 
+  /// {@template flutter.material.theme_data.datePickerTheme}
   /// A theme for customizing the appearance and layout of [DatePickerDialog]
   /// widgets.
+  /// {@endtemplate}
   final DatePickerThemeData datePickerTheme;
 
   /// A theme for customizing the shape of a dialog.
   final DialogTheme dialogTheme;
 
+  /// {@template flutter.material.theme_data.dividerTheme}
   /// A theme for customizing the color, thickness, and indents of [Divider]s,
   /// [VerticalDivider]s, etc.
+  /// {@endtemplate}
   final DividerThemeData dividerTheme;
 
   /// A theme for customizing the appearance and layout of [Drawer] widgets.
@@ -1284,58 +2267,82 @@ class ThemeData with Diagnosticable {
   /// A theme for customizing the appearance and layout of [DropdownMenu] widgets.
   final DropdownMenuThemeData dropdownMenuTheme;
 
+  /// {@template flutter.material.theme_data.elevatedButtonTheme}
   /// A theme for customizing the appearance and internal layout of
   /// [ElevatedButton]s.
+  /// {@endtemplate}
   final ElevatedButtonThemeData elevatedButtonTheme;
 
   /// A theme for customizing the visual properties of [ExpansionTile]s.
   final ExpansionTileThemeData expansionTileTheme;
 
+  /// {@template flutter.material.theme_data.filledButtonTheme}
   /// A theme for customizing the appearance and internal layout of
   /// [FilledButton]s.
+  /// {@endtemplate}
   final FilledButtonThemeData filledButtonTheme;
 
+  /// {@template flutter.material.theme_data.floatingActionButtonTheme}
   /// A theme for customizing the shape, elevation, and color of a
   /// [FloatingActionButton].
+  /// {@endtemplate}
   final FloatingActionButtonThemeData floatingActionButtonTheme;
 
+  /// {@template flutter.material.theme_data.iconButtonTheme}
   /// A theme for customizing the appearance and internal layout of
   /// [IconButton]s.
+  /// {@endtemplate}
   final IconButtonThemeData iconButtonTheme;
 
   /// A theme for customizing the appearance of [ListTile] widgets.
   final ListTileThemeData listTileTheme;
 
+  /// {@template flutter.material.theme_data.menuBarTheme}
   /// A theme for customizing the color, shape, elevation, and other [MenuStyle]
   /// aspects of the menu bar created by the [MenuBar] widget.
+  /// {@endtemplate}
   final MenuBarThemeData menuBarTheme;
 
+  /// {@template flutter.material.theme_data.menuButtonTheme}
   /// A theme for customizing the color, shape, elevation, and text style of
   /// cascading menu buttons created by [SubmenuButton] or [MenuItemButton].
+  /// {@endtemplate}
   final MenuButtonThemeData menuButtonTheme;
 
+  /// {@template flutter.material.theme_data.menuTheme}
   /// A theme for customizing the color, shape, elevation, and other [MenuStyle]
   /// attributes of menus created by the [SubmenuButton] widget.
+  /// {@endtemplate}
   final MenuThemeData menuTheme;
 
+  /// {@template flutter.material.theme_data.navigationBarTheme}
   /// A theme for customizing the background color, text style, and icon themes
   /// of a [NavigationBar].
+  /// {@endtemplate}
   final NavigationBarThemeData navigationBarTheme;
 
+  /// {@template flutter.material.theme_data.navigationDrawerTheme}
   /// A theme for customizing the background color, text style, and icon themes
   /// of a [NavigationDrawer].
+  /// {@endtemplate}
   final NavigationDrawerThemeData navigationDrawerTheme;
 
+  /// {@template flutter.material.theme_data.navigationRailTheme}
   /// A theme for customizing the background color, elevation, text style, and
   /// icon themes of a [NavigationRail].
+  /// {@endtemplate}
   final NavigationRailThemeData navigationRailTheme;
 
+  /// {@template flutter.material.theme_data.outlinedButtonTheme}
   /// A theme for customizing the appearance and internal layout of
   /// [OutlinedButton]s.
+  /// {@endtemplate}
   final OutlinedButtonThemeData outlinedButtonTheme;
 
+  /// {@template flutter.material.theme_data.popupMenuTheme}
   /// A theme for customizing the color, shape, elevation, and text style of
   /// popup menus.
+  /// {@endtemplate}
   final PopupMenuThemeData popupMenuTheme;
 
   /// A theme for customizing the appearance and layout of [ProgressIndicator] widgets.
@@ -1353,9 +2360,11 @@ class ThemeData with Diagnosticable {
   /// A theme for customizing the appearance and layout of [SegmentedButton] widgets.
   final SegmentedButtonThemeData segmentedButtonTheme;
 
+  /// {@template flutter.material.theme_data.sliderTheme}
   /// The colors and shapes used to render [Slider].
   ///
   /// This is the value returned from [SliderTheme.of].
+  /// {@endtemplate}
   final SliderThemeData sliderTheme;
 
   /// A theme for customizing colors, shape, elevation, and behavior of a [SnackBar].
@@ -1367,8 +2376,10 @@ class ThemeData with Diagnosticable {
   /// A theme for customizing the size, shape, and color of the tab bar indicator.
   final TabBarTheme tabBarTheme;
 
+  /// {@template flutter.material.theme_data.textButtonTheme}
   /// A theme for customizing the appearance and internal layout of
   /// [TextButton]s.
+  /// {@endtemplate}
   final TextButtonThemeData textButtonTheme;
 
   /// A theme for customizing the appearance and layout of [TextField] widgets.
@@ -1380,9 +2391,11 @@ class ThemeData with Diagnosticable {
   /// Defines the default configuration of [ToggleButtons] widgets.
   final ToggleButtonsThemeData toggleButtonsTheme;
 
+  /// {@template flutter.material.theme_data.tooltipTheme}
   /// A theme for customizing the visual properties of [Tooltip]s.
   ///
   /// This is the value returned from [TooltipTheme.of].
+  /// {@endtemplate}
   final TooltipThemeData tooltipTheme;
 
   /// A theme for customizing the appearance and layout of [ButtonBar] widgets.
@@ -1513,6 +2526,7 @@ class ThemeData with Diagnosticable {
       // alphabetical by symbol name.
 
       // GENERAL CONFIGURATION
+      config: config,
       adaptationMap: adaptations != null ? _createAdaptationMap(adaptations) : adaptationMap,
       applyElevationOverlayColor: applyElevationOverlayColor ?? this.applyElevationOverlayColor,
       cupertinoOverrideTheme: cupertinoOverrideTheme ?? this.cupertinoOverrideTheme,

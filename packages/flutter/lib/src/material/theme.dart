@@ -112,9 +112,29 @@ class Theme extends StatelessWidget {
     return ThemeData.localize(theme, theme.typography.geometryThemeFor(category));
   }
 
-  // The inherited themes in widgets library can not infer their values from
-  // Theme in material library. Wraps the child with these inherited themes to
-  // overrides their values directly.
+  /// Creates a new [ThemeData] object, visible to child widgets via [Theme.of].
+  ///
+  /// The new theme data is generated using [ThemeConfiguration.merge] and
+  /// [ThemeConfiguration.applyDefaults].
+  ///
+  /// The argument passed [data] can be a number of different types, including
+  /// [ThemeData], [Brightness], [IconTheme], [VisualDensity], and [TargetPlatform].
+  static Widget merge({
+    Key? key,
+    required Object data,
+    required Widget child,
+  }) {
+    return Builder(
+      builder: (BuildContext context) {
+        final ThemeData value = of(context).config.merge(data).applyDefaults();
+        return Theme(key: key, data: value, child: child);
+      },
+    );
+  }
+
+  // The inherited themes in widgets library cannot infer their values from the
+  // Theme in material library. This function wraps the child with the relevant
+  // inherited themes to override their values directly.
   Widget _wrapsWidgetThemes(BuildContext context, Widget child) {
     final DefaultSelectionStyle selectionStyle = DefaultSelectionStyle.of(context);
     return IconTheme(
