@@ -3,19 +3,23 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:math' show max, min;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import 'actions.dart';
 import 'basic.dart';
-import 'container.dart';
 import 'editable_text.dart';
 import 'focus_manager.dart';
 import 'framework.dart';
 import 'inherited_notifier.dart';
+import 'layout_builder.dart';
 import 'overlay.dart';
 import 'shortcuts.dart';
 import 'tap_region.dart';
+import 'value_listenable_builder.dart';
 
 // Examples can assume:
 // late BuildContext context;
@@ -208,18 +212,18 @@ class RawAutocomplete<T extends Object> extends StatefulWidget {
   /// {@template flutter.widgets.RawAutocomplete.optionsViewBuilder}
   /// Builds the selectable options widgets from a list of options objects.
   ///
-  /// The options are displayed floating below or above the field using a
-  /// [CompositedTransformFollower] inside of an [Overlay], not at the same
-  /// place in the widget tree as [RawAutocomplete]. To control whether it opens
-  /// upward or downward, use [optionsViewOpenDirection].
+  /// The options are displayed floating below or above the field inside of an
+  /// [Overlay], not at the same place in the widget tree as [RawAutocomplete].
+  /// To control whether it opens upward or downward, use
+  /// [optionsViewOpenDirection].
   ///
   /// In order to track which item is highlighted by keyboard navigation, the
   /// resulting options will be wrapped in an inherited
-  /// [AutocompleteHighlightedOption] widget.
-  /// Inside this callback, the index of the highlighted option can be obtained
-  /// from [AutocompleteHighlightedOption.of] to display the highlighted option
-  /// with a visual highlight to indicate it will be the option selected from
-  /// the keyboard.
+  /// [AutocompleteHighlightedOption] widget. Inside this callback, the index of
+  /// the highlighted option can be obtained from
+  /// [AutocompleteHighlightedOption.of] to display the highlighted option with
+  /// a visual highlight to indicate it will be the option selected from the
+  /// keyboard.
   ///
   /// {@endtemplate}
   final AutocompleteOptionsViewBuilder<T> optionsViewBuilder;
@@ -300,8 +304,12 @@ class RawAutocomplete<T extends Object> extends StatefulWidget {
 }
 
 class _RawAutocompleteState<T extends Object> extends State<RawAutocomplete<T>> {
-  final GlobalKey _fieldKey = GlobalKey();
-  final LayerLink _optionsLayerLink = LayerLink();
+  final GlobalKey _fieldKey = GlobalKey(debugLabel: kReleaseMode ? null : 'AutocompleteFieldView');
+
+  // The box constraints that the field was last built with.
+  final ValueNotifier<BoxConstraints> _fieldBoxConstraints =
+      ValueNotifier<BoxConstraints>(const BoxConstraints());
+
   final OverlayPortalController _optionsViewController = OverlayPortalController(debugLabel: '_RawAutocompleteState');
 
   TextEditingController? _internalTextEditingController;
@@ -419,29 +427,34 @@ class _RawAutocompleteState<T extends Object> extends State<RawAutocomplete<T>> 
   }
 
   Widget _buildOptionsView(BuildContext context) {
-    final TextDirection textDirection = Directionality.of(context);
-    final Alignment followerAlignment = switch (widget.optionsViewOpenDirection) {
-      OptionsViewOpenDirection.up => AlignmentDirectional.bottomStart,
-      OptionsViewOpenDirection.down => AlignmentDirectional.topStart,
-    }.resolve(textDirection);
-    final Alignment targetAnchor = switch (widget.optionsViewOpenDirection) {
-      OptionsViewOpenDirection.up => AlignmentDirectional.topStart,
-      OptionsViewOpenDirection.down => AlignmentDirectional.bottomStart,
-    }.resolve(textDirection);
+    return ValueListenableBuilder<BoxConstraints>(
+      valueListenable: _fieldBoxConstraints,
+      builder: (BuildContext context, BoxConstraints constraints, Widget? child) {
+        final RenderBox? fieldRenderBox = _fieldKey.currentContext?.findRenderObject() as RenderBox?;
 
-    return CompositedTransformFollower(
-      link: _optionsLayerLink,
-      showWhenUnlinked: false,
-      targetAnchor: targetAnchor,
-      followerAnchor: followerAlignment,
-      child: TextFieldTapRegion(
-        child: AutocompleteHighlightedOption(
-          highlightIndexNotifier: _highlightedOptionIndex,
-          child: Builder(
-            builder: (BuildContext context) => widget.optionsViewBuilder(context, _select, _options),
+        return CustomSingleChildLayout(
+          delegate: _OptionsLayoutDelegate(
+            fieldBoxConstraints: constraints,
+            fieldSize: fieldRenderBox?.size,
+            fieldKey: _fieldKey,
+            optionsViewOpenDirection: widget.optionsViewOpenDirection,
+            overlayContext: context,
+            textDirection: Directionality.maybeOf(context),
           ),
-        ),
-      ),
+          child: TextFieldTapRegion(
+            child: AutocompleteHighlightedOption(
+              highlightIndexNotifier: _highlightedOptionIndex,
+              // optionsViewBuilder must be able to look up
+              // AutocompleteHighlightedOption in its context.
+              child: Builder(
+                builder: (BuildContext context) {
+                  return widget.optionsViewBuilder(context, _select, _options);
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -493,21 +506,116 @@ class _RawAutocompleteState<T extends Object> extends State<RawAutocomplete<T>> 
       controller: _optionsViewController,
       overlayChildBuilder: _buildOptionsView,
       child: TextFieldTapRegion(
-        child: Container(
-          key: _fieldKey,
-          child: Shortcuts(
-            shortcuts: _shortcuts,
-            child: Actions(
-              actions: _actionMap,
-              child: CompositedTransformTarget(
-                link: _optionsLayerLink,
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints boxConstraints) {
+            assert(boxConstraints.hasBoundedWidth);
+            SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
+              _fieldBoxConstraints.value = boxConstraints;
+            });
+            return Shortcuts(
+              shortcuts: _shortcuts,
+              child: Actions(
+                key: _fieldKey,
+                actions: _actionMap,
                 child: fieldView,
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
+  }
+}
+
+/// Positions the options view.
+class _OptionsLayoutDelegate extends SingleChildLayoutDelegate {
+  _OptionsLayoutDelegate({
+    required this.fieldBoxConstraints,
+    required this.fieldKey,
+    required Size? fieldSize,
+    required this.optionsViewOpenDirection,
+    required this.overlayContext,
+    required TextDirection? textDirection,
+  }) : fieldSize = fieldSize ?? Size.zero,
+       textDirection = textDirection ?? TextDirection.ltr;
+
+  /// The constraints of the field in [RawAutocomplete.fieldViewBuilder].
+  final BoxConstraints fieldBoxConstraints;
+
+  /// The key of the field in [RawAutocomplete.fieldViewBuilder].
+  final GlobalKey fieldKey;
+
+  /// The size of the field in [RawAutocomplete.fieldViewBuilder].
+  final Size fieldSize;
+
+   /// A direction in which to open the options view overlay.
+  final OptionsViewOpenDirection optionsViewOpenDirection;
+
+  /// The [BuildContext] of the [Overlay] that options are rendered in.
+  final BuildContext overlayContext;
+
+  /// The [TextDirection] of this part of the widget tree.
+  final TextDirection textDirection;
+
+  // Eyeballed to be big enough for about one item in the default
+  // Autocomplete.optionsViewBuilder. The assumption is that the user likely
+  // wants to list of options to move to stay on the screen rather than get any
+  // smaller than this.
+  static const double _minUsableHeight = 52.0;
+
+  Offset get _fieldOffset {
+    final RenderBox? fieldRenderBox = fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    if (fieldRenderBox == null) {
+      return Offset.zero;
+    }
+    return fieldRenderBox.localToGlobal(
+      Offset.zero,
+      ancestor: Overlay.of(overlayContext).context.findRenderObject(),
+    );
+  }
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    final Offset fieldOffset = _fieldOffset;
+    // Constraints that limit the child to the space above/below the field.
+    return constraints.loosen().copyWith(
+      maxWidth: fieldBoxConstraints.maxWidth,
+      maxHeight: switch (optionsViewOpenDirection) {
+        OptionsViewOpenDirection.down => max(
+          min(_minUsableHeight, constraints.maxHeight),
+          constraints.maxHeight - fieldOffset.dy - fieldSize.height,
+        ),
+        OptionsViewOpenDirection.up => max(_minUsableHeight, fieldOffset.dy),
+      },
+    );
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final Offset fieldOffset = _fieldOffset;
+    return Offset(
+      switch(textDirection) {
+        TextDirection.ltr => fieldOffset.dx,
+        TextDirection.rtl => fieldOffset.dx + fieldSize.width - childSize.width,
+      },
+      clampDouble(
+        switch (optionsViewOpenDirection) {
+          OptionsViewOpenDirection.down => fieldOffset.dy + fieldSize.height,
+          OptionsViewOpenDirection.up => fieldOffset.dy - childSize.height,
+        },
+        0.0,
+        max(0.0, size.height - childSize.height),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_OptionsLayoutDelegate oldDelegate) {
+    // This class depends on the position of the field (_fieldOffset) in order
+    // to do its layout. At this point, it's not possible to know if the field's
+    // position has changed in this frame, because it hasn't laid itself out
+    // yet. So this must always relayout in case it has changed.
+    return true;
   }
 }
 
