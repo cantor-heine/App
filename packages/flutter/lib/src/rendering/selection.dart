@@ -100,6 +100,52 @@ abstract class SelectionHandler implements ValueListenable<SelectionGeometry> {
   SelectionResult dispatchSelectionEvent(SelectionEvent event);
 }
 
+/// A controller for the content of a [Selectable].
+///
+/// A user can set the value on this controller to modify the content under
+/// a selection created by [SelectionArea] or [SelectableRegion].
+abstract class SelectedContentController<T extends Object> {
+  /// Creates a controller for the content of a [Selectable] or [SelectionHandler].
+  SelectedContentController({
+    this.selectableId,
+    required this.content,
+  });
+
+  /// The unique id for the [Selectable] that created the controller.
+  final int? selectableId;
+
+  /// The content that contains the selection.
+  final T content;
+
+  /// Additional controllers to include as children.
+  ///
+  /// Children of a given controller enable more granular modification of the
+  /// selection.
+  List<SelectedContentController<Object>> children = <SelectedContentController<Object>>[];
+
+  /// The start of the selection relative to the type of content in [content].
+  int get startOffset;
+
+  /// The end of the selection relative to the type of content in [content].
+  int get endOffset;
+
+  /// Adds a child controller to the list of [children].
+  void addChild(SelectedContentController<Object> childController) {
+    children.add(childController);
+  }
+
+  @override
+  String toString() {
+    return 'SelectedContentController(\n'
+           '  selectableId: $selectableId,\n'
+           '  content: $content,\n'
+           '  startOffset: $startOffset,\n'
+           '  endOffset: $endOffset,\n'
+           '  children: $children,\n'
+           ')';
+  }
+}
+
 /// The selected content in a [Selectable] or [SelectionHandler].
 // TODO(chunhtai): Add more support for rich content.
 // https://github.com/flutter/flutter/issues/104206.
@@ -107,10 +153,47 @@ class SelectedContent {
   /// Creates a selected content object.
   ///
   /// Only supports plain text.
-  const SelectedContent({required this.plainText});
+  const SelectedContent({
+    required this.plainText,
+    required this.geometry,
+    this.startOffset = -1,
+    this.endOffset = -1,
+    this.controllers,
+  });
 
   /// The selected content in plain text format.
   final String plainText;
+
+  /// The [SelectionGeometry] of the [Selectable] or [SelectionHandler] containing
+  /// the selection.
+  final SelectionGeometry geometry;
+
+  /// The value representing the beginning of the selection, defaults to -1.
+  ///
+  /// If the [Selectable] contains mutable text, then the offset represents
+  /// character offsets.
+  final int startOffset;
+
+  /// The value representing the end of the selection, defaults to -1.
+  ///
+  /// If the [Selectable] contains mutable text, then the offset represents
+  /// character offsets.
+  final int endOffset;
+
+  /// A list of [SelectedContentController]s that represent the selection, and
+  /// can be used to modify the contents of the selection.
+  final List<SelectedContentController<Object>>? controllers;
+
+  @override
+  String toString() {
+    return 'SelectedContent(\n'
+           '  plainText: $plainText,\n'
+           '  geometry: $geometry,\n'
+           '  startOffset: $startOffset,\n'
+           '  endOffset: $endOffset,\n'
+           '  controllers: $controllers,\n'
+           ')';
+  }
 }
 
 /// A mixin that can be selected by users when under a [SelectionArea] widget.
