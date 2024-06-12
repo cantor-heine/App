@@ -134,7 +134,12 @@ String generateTestBootstrap({
   File? testConfigFile,
   bool updateGoldens = false,
   String languageVersionHeader = '',
-  bool nullSafety = false,
+  @Deprecated(
+    'Stop specifying this parameter as it is now ignored. '
+    'Dart 3 and later only support sound null safety. '
+    'This feature was deprecated after v3.22.0-0.3.pre.',
+  )
+  bool nullSafety = true,
   bool flutterTestDep = true,
   bool integrationTest = false,
 }) {

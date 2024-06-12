@@ -66,7 +66,6 @@ void main() {
         InternetAddress.loopbackIPv4,
         <String, String>{},
         <String, String>{},
-        NullSafetyMode.unsound,
         usesDdcModuleSystem,
         webRenderer: WebRendererMode.canvaskit,
       );
@@ -303,7 +302,6 @@ void main() {
       InternetAddress.loopbackIPv4,
       <String, String>{},
       <String, String>{},
-      NullSafetyMode.unsound,
       usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
     );
@@ -324,7 +322,6 @@ void main() {
       InternetAddress.loopbackIPv4,
       <String, String>{},
       <String, String>{},
-      NullSafetyMode.unsound,
       usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
     );
@@ -347,7 +344,6 @@ void main() {
         InternetAddress.loopbackIPv4,
         <String, String>{},
         <String, String>{},
-        NullSafetyMode.unsound,
         usesDdcModuleSystem,
         webRenderer: WebRendererMode.canvaskit,
       ),
@@ -369,7 +365,6 @@ void main() {
         InternetAddress.loopbackIPv4,
         <String, String>{},
         <String, String>{},
-        NullSafetyMode.unsound,
         usesDdcModuleSystem,
         webRenderer: WebRendererMode.canvaskit,
       ),
@@ -677,121 +672,7 @@ void main() {
     expect(httpServer.closed, true);
   }));
 
-  test('Can start web server with specified AMD module system assets', () => testbed.run(() async {
-    final File outputFile = globals.fs.file(globals.fs.path.join('lib', 'main.dart'))
-      ..createSync(recursive: true);
-    outputFile.parent.childFile('a.sources').writeAsStringSync('');
-    outputFile.parent.childFile('a.json').writeAsStringSync('{}');
-    outputFile.parent.childFile('a.map').writeAsStringSync('{}');
-    outputFile.parent.childFile('a.metadata').writeAsStringSync('{}');
-
-    final ResidentCompiler residentCompiler = FakeResidentCompiler()
-      ..output = const CompilerOutput('a', 0, <Uri>[]);
-
-    final WebDevFS webDevFS = WebDevFS(
-      hostname: 'localhost',
-      port: 0,
-      tlsCertPath: null,
-      tlsCertKeyPath: null,
-      packagesFilePath: '.packages',
-      urlTunneller: null,
-      useSseForDebugProxy: true,
-      useSseForDebugBackend: true,
-      useSseForInjectedClient: true,
-      nullAssertions: true,
-      nativeNullAssertions: true,
-      buildInfo: const BuildInfo(
-        BuildMode.debug,
-        '',
-        treeShakeIcons: false,
-        nullSafetyMode: NullSafetyMode.unsound,
-      ),
-      enableDwds: false,
-      enableDds: false,
-      entrypoint: Uri.base,
-      testMode: true,
-      expressionCompiler: null,
-      extraHeaders: const <String, String>{},
-      chromiumLauncher: null,
-      nullSafetyMode: NullSafetyMode.unsound,
-      ddcModuleSystem: usesDdcModuleSystem,
-      webRenderer: WebRendererMode.html,
-      isWasm: false,
-      rootDirectory: globals.fs.currentDirectory,
-    );
-    webDevFS.requireJS.createSync(recursive: true);
-    webDevFS.flutterJs.createSync(recursive: true);
-    webDevFS.stackTraceMapper.createSync(recursive: true);
-
-    final Uri uri = await webDevFS.create();
-    webDevFS.webAssetServer.entrypointCacheDirectory = globals.fs.currentDirectory;
-    final String webPrecompiledSdk = globals.artifacts!
-      .getHostArtifact(HostArtifact.webPrecompiledAmdSdk).path;
-    final String webPrecompiledSdkSourcemaps = globals.artifacts!
-      .getHostArtifact(HostArtifact.webPrecompiledAmdSdkSourcemaps).path;
-    final String webPrecompiledCanvaskitSdk = globals.artifacts!
-      .getHostArtifact(HostArtifact.webPrecompiledAmdCanvaskitSdk).path;
-    final String webPrecompiledCanvaskitSdkSourcemaps = globals.artifacts!
-      .getHostArtifact(HostArtifact.webPrecompiledAmdCanvaskitSdkSourcemaps).path;
-    globals.fs.currentDirectory
-      .childDirectory('lib')
-      .childFile('web_entrypoint.dart')
-      ..createSync(recursive: true)
-      ..writeAsStringSync('GENERATED');
-    globals.fs.file(webPrecompiledSdk)
-      ..createSync(recursive: true)
-      ..writeAsStringSync('HELLO');
-    globals.fs.file(webPrecompiledSdkSourcemaps)
-      ..createSync(recursive: true)
-      ..writeAsStringSync('THERE');
-    globals.fs.file(webPrecompiledCanvaskitSdk)
-      ..createSync(recursive: true)
-      ..writeAsStringSync('OL');
-    globals.fs.file(webPrecompiledCanvaskitSdkSourcemaps)
-      ..createSync(recursive: true)
-      ..writeAsStringSync('CHUM');
-
-    await webDevFS.update(
-      mainUri: globals.fs.file(globals.fs.path.join('lib', 'main.dart')).uri,
-      generator: residentCompiler,
-      trackWidgetCreation: true,
-      bundleFirstUpload: true,
-      invalidatedFiles: <Uri>[],
-      packageConfig: PackageConfig.empty,
-      pathToReload: '',
-      dillOutputPath: 'out.dill',
-      shaderCompiler: const FakeShaderCompiler(),
-    );
-
-    expect(webDevFS.webAssetServer.getFile('require.js'), isNotNull);
-    expect(webDevFS.webAssetServer.getFile('stack_trace_mapper.js'), isNotNull);
-    expect(webDevFS.webAssetServer.getFile('main.dart'), isNotNull);
-    expect(webDevFS.webAssetServer.getFile('manifest.json'), isNotNull);
-    expect(webDevFS.webAssetServer.getFile('flutter.js'), isNotNull);
-    expect(webDevFS.webAssetServer.getFile('flutter_service_worker.js'), isNotNull);
-    expect(webDevFS.webAssetServer.getFile('version.json'),isNotNull);
-    expect(await webDevFS.webAssetServer.dartSourceContents('dart_sdk.js'), 'HELLO');
-    expect(await webDevFS.webAssetServer.dartSourceContents('dart_sdk.js.map'), 'THERE');
-
-    // Update to the SDK.
-    globals.fs.file(webPrecompiledSdk).writeAsStringSync('BELLOW');
-
-    // New SDK should be visible..
-    expect(await webDevFS.webAssetServer.dartSourceContents('dart_sdk.js'), 'BELLOW');
-
-    // Generated entrypoint.
-    expect(await webDevFS.webAssetServer.dartSourceContents('web_entrypoint.dart'),
-      contains('GENERATED'));
-
-    // served on localhost
-    expect(uri.host, 'localhost');
-
-    await webDevFS.destroy();
-  }, overrides: <Type, Generator>{
-    Artifacts: () => Artifacts.test(),
-  }));
-
-  test('Can start web server with specified assets in sound null safety mode', () => testbed.run(() async {
+  test('Can start web server with specified assets', () => testbed.run(() async {
     final File outputFile = globals.fs.file(globals.fs.path.join('lib', 'main.dart'))
       ..createSync(recursive: true);
     outputFile.parent.childFile('a.sources').writeAsStringSync('');
@@ -826,7 +707,6 @@ void main() {
       expressionCompiler: null,
       extraHeaders: const <String, String>{},
       chromiumLauncher: null,
-      nullSafetyMode: NullSafetyMode.sound,
       ddcModuleSystem: usesDdcModuleSystem,
       webRenderer: WebRendererMode.html,
       isWasm: false,
@@ -945,7 +825,6 @@ void main() {
         expressionCompiler: null,
         extraHeaders: const <String, String>{},
         chromiumLauncher: null,
-        nullSafetyMode: NullSafetyMode.sound,
         ddcModuleSystem: usesDdcModuleSystem,
         webRenderer: WebRendererMode.canvaskit,
         isWasm: false,
@@ -1010,7 +889,6 @@ void main() {
       chromiumLauncher: null,
       nullAssertions: true,
       nativeNullAssertions: true,
-      nullSafetyMode: NullSafetyMode.sound,
       ddcModuleSystem: usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
       isWasm: false,
@@ -1059,7 +937,6 @@ void main() {
       expressionCompiler: null,
       extraHeaders: const <String, String>{},
       chromiumLauncher: null,
-      nullSafetyMode: NullSafetyMode.sound,
       ddcModuleSystem: usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
       isWasm: false,
@@ -1109,7 +986,6 @@ void main() {
       expressionCompiler: null,
       extraHeaders: const <String, String>{},
       chromiumLauncher: null,
-      nullSafetyMode: NullSafetyMode.sound,
       ddcModuleSystem: usesDdcModuleSystem,
       webRenderer: WebRendererMode.auto,
       isWasm: false,
@@ -1160,7 +1036,6 @@ void main() {
       expressionCompiler: null,
       extraHeaders: const <String, String>{},
       chromiumLauncher: null,
-      nullSafetyMode: NullSafetyMode.unsound,
       ddcModuleSystem: usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
       isWasm: false,
@@ -1200,7 +1075,6 @@ void main() {
       Uri.base,
       null,
       const <String, String>{},
-      NullSafetyMode.unsound,
       webRenderer: WebRendererMode.canvaskit,
       isWasm: false,
       testMode: true
@@ -1235,7 +1109,6 @@ void main() {
       const <String, String>{
         extraHeaderKey: extraHeaderValue,
       },
-      NullSafetyMode.unsound,
       webRenderer: WebRendererMode.canvaskit,
       isWasm: false,
       testMode: true
@@ -1273,7 +1146,6 @@ void main() {
       InternetAddress.anyIPv4,
       <String, String>{},
       <String, String>{},
-      NullSafetyMode.sound,
       usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
     );
@@ -1317,7 +1189,6 @@ void main() {
       expressionCompiler: null,
       extraHeaders: const <String, String>{},
       chromiumLauncher: null,
-      nullSafetyMode: NullSafetyMode.unsound,
       ddcModuleSystem: usesDdcModuleSystem,
       webRenderer: WebRendererMode.canvaskit,
       isWasm: false,
