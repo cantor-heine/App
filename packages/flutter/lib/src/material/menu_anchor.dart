@@ -1204,6 +1204,8 @@ class _MenuItemButtonState extends State<MenuItemButton> {
   }
 }
 
+enum _CheckboxType { material, adaptive }
+
 /// A menu item that combines a [Checkbox] widget with a [MenuItemButton].
 ///
 /// To style the checkbox separately from the button, add a [CheckboxTheme]
@@ -1241,7 +1243,29 @@ class CheckboxMenuButton extends StatelessWidget {
     this.trailingIcon,
     this.closeOnActivate = true,
     required this.child,
-  });
+  }) : _checkboxType = _CheckboxType.material;
+
+  /// On iOS and macOS, this constructor uses a [CupertinoCheckbox], which has
+  /// matching functionality and presentation as Material checkboxes, and are the
+  /// graphics expected on iOS. On other platforms, this uses a Material
+  /// design [Checkbox].
+  const CheckboxMenuButton.adaptive({
+    super.key,
+    required this.value,
+    this.tristate = false,
+    this.isError = false,
+    required this.onChanged,
+    this.onHover,
+    this.onFocusChange,
+    this.focusNode,
+    this.shortcut,
+    this.style,
+    this.statesController,
+    this.clipBehavior = Clip.none,
+    this.trailingIcon,
+    this.closeOnActivate = true,
+    required this.child,
+  }) : _checkboxType = _CheckboxType.adaptive;
 
   /// Whether this checkbox is checked.
   ///
@@ -1352,6 +1376,8 @@ class CheckboxMenuButton extends StatelessWidget {
   /// {@macro flutter.widgets.ProxyWidget.child}
   final Widget? child;
 
+  final _CheckboxType _checkboxType;
+
   /// Whether the button is enabled or disabled.
   ///
   /// To enable a button, set its [onChanged] property to a non-null value.
@@ -1384,12 +1410,24 @@ class CheckboxMenuButton extends StatelessWidget {
               maxHeight: Checkbox.width,
               maxWidth: Checkbox.width,
             ),
-            child: Checkbox(
-              tristate: tristate,
-              value: value,
-              onChanged: onChanged,
-              isError: isError,
-            ),
+            child: () {
+              switch (_checkboxType) {
+                case _CheckboxType.adaptive:
+                  return Checkbox.adaptive(
+                    value: value,
+                    tristate: tristate,
+                    onChanged: onChanged,
+                    isError: isError,
+                  );
+                case _CheckboxType.material:
+                  return Checkbox(
+                    value: value,
+                    tristate: tristate,
+                    onChanged: onChanged,
+                    isError: isError,
+                  );
+              }
+            }(),
           ),
         ),
       ),
@@ -1400,6 +1438,8 @@ class CheckboxMenuButton extends StatelessWidget {
     );
   }
 }
+
+enum _RadioType { material, adaptive }
 
 /// A menu item that combines a [Radio] widget with a [MenuItemButton].
 ///
@@ -1438,7 +1478,30 @@ class RadioMenuButton<T> extends StatelessWidget {
     this.trailingIcon,
     this.closeOnActivate = true,
     required this.child,
-  });
+  }) : _radioType = _RadioType.material;
+
+  /// On iOS and macOS, this constructor uses a [CupertinoRadio], which has
+  /// matching functionality and presentation as Material radios, and are the
+  /// graphics expected on iOS. On other platforms, this uses a Material
+  /// design [Radio].
+  const RadioMenuButton.adaptive({
+    super.key,
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+    this.toggleable = false,
+    this.onHover,
+    this.onFocusChange,
+    this.focusNode,
+    this.shortcut,
+    this.style,
+    this.statesController,
+    this.clipBehavior = Clip.none,
+    this.trailingIcon,
+    this.closeOnActivate = true,
+    required this.child,
+  }) : _radioType = _RadioType.adaptive;
+
 
   /// The value represented by this radio button.
   ///
@@ -1556,6 +1619,8 @@ class RadioMenuButton<T> extends StatelessWidget {
   /// To enable a button, set its [onChanged] property to a non-null value.
   bool get enabled => onChanged != null;
 
+  final _RadioType _radioType;
+
   @override
   Widget build(BuildContext context) {
     return MenuItemButton(
@@ -1580,12 +1645,24 @@ class RadioMenuButton<T> extends StatelessWidget {
               maxHeight: Checkbox.width,
               maxWidth: Checkbox.width,
             ),
-            child: Radio<T>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-              toggleable: toggleable,
-            ),
+            child: () {
+              switch (_radioType) {
+                case _RadioType.adaptive:
+                  return Radio<T>.adaptive(
+                    value: value,
+                    groupValue: groupValue,
+                    onChanged: onChanged,
+                    toggleable: toggleable,
+                  );
+                case _RadioType.material:
+                  return Radio<T>(
+                    value: value,
+                    groupValue: groupValue,
+                    onChanged: onChanged,
+                    toggleable: toggleable,
+                  );
+              }
+            }(),
           ),
         ),
       ),
