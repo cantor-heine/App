@@ -1548,7 +1548,7 @@ class _TabBarState extends State<TabBar> {
 
     final double index = _controller!.index.toDouble();
     final double value = _controller!.animation!.value;
-    final double offset = switch (value - index) {
+    final double offset = switch (value) {
       -1.0 || 1.0 => leadingPosition ?? middlePosition,
       0 => middlePosition,
       < 0 when leadingPosition == null => middlePosition,
