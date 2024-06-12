@@ -4,9 +4,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:leak_tracker_flutter_testing/leak_tracker_flutter_testing.dart';
+import 'package:meta/meta.dart';
 
 import '../image_data.dart';
 import '../rendering/rendering_tester.dart' show TestCallbackPainter;
@@ -41,7 +43,7 @@ class MockCupertinoTabController extends CupertinoTabController {
 
 void main() {
   // TODO(polina-c): dispose ImageStreamCompleterHandle, https://github.com/flutter/flutter/issues/145599 [leaks-to-clean]
-  LeakTesting.settings = LeakTesting.settings.withIgnoredAll();
+  //LeakTesting.settings = LeakTesting.settings.withIgnoredAll();
 
   setUp(() {
     selectedTabs = <int>[];
@@ -1277,11 +1279,28 @@ void main() {
     });
 
     tearDown(() {
+      imageCache.clear();
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(SystemChannels.platform, null);
     });
 
-    testWidgets('System back navigation inside of tabs', (WidgetTester tester) async {
+    void _completeCallbacks(){
+      print('!!! looping handleEventLoopCallback');
+      while(SchedulerBinding.instance.handleEventLoopCallback()){
+        print('!!! handleEventLoopCallback returned true');
+      }
+      print('!!! loop handleEventLoopCallback completed');
+    }
+
+    tearDownAll(() {
+      _completeCallbacks();
+    });
+
+    testWidgets('System back navigation inside of tabs',
+    // experimentalLeakTesting: LeakTesting.settings.withCreationStackTrace(),
+    (WidgetTester tester) async {
+      testStarted = true;
+      print('!!! test started');
       await tester.pumpWidget(
         CupertinoApp(
           home: MediaQuery(
@@ -1377,6 +1396,8 @@ void main() {
       expect(find.text('Page 1 of tab 2'), findsOneWidget);
       expect(find.text('Page 2 of tab 2'), findsNothing);
       expect(lastFrameworkHandlesBack, isFalse);
+      testEnded = true;
+      print('!!! test ended');
     },
       variant: const TargetPlatformVariant(<TargetPlatform>{ TargetPlatform.android }),
       skip: kIsWeb, // [intended] frameworkHandlesBack not used on web.
